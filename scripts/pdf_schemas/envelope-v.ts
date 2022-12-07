@@ -1,5 +1,7 @@
 import { Template } from "@pdfme/generator";
 
+const fontName = "noto_sans_jp";
+
 export const destSchema = ({
   outputPosition = false,
   useAffiliation = false,
@@ -39,7 +41,7 @@ export const destSchema = ({
           rotate: 25,
           type: "text",
           position: {
-            x: 39.90,
+            x: 39.9,
             y: 119.87,
           },
           width: 103,
@@ -48,13 +50,13 @@ export const destSchema = ({
           fontSize: 14,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         destAddress2: {
           rotate: 25,
           type: "text",
           position: {
-            x: 51.50,
+            x: 51.5,
             y: 121.08,
           },
           width: 93,
@@ -63,7 +65,7 @@ export const destSchema = ({
           fontSize: 14,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         destAffiliation1: {
           rotate: 25,
@@ -78,7 +80,7 @@ export const destSchema = ({
           fontSize: 14,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         destAffiliation2: {
           rotate: 25,
@@ -93,7 +95,7 @@ export const destSchema = ({
           fontSize: 14,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         destPosition: {
           rotate: 25,
@@ -108,14 +110,26 @@ export const destSchema = ({
           fontSize: 18,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         destName: {
           rotate: 25,
           type: "text",
           position: {
-            x: useAffiliation ? (outputPosition ? 82.2 : 53.42) : outputPosition ? 75.44 : 46.66,
-            y: useAffiliation ? (outputPosition ? 135.45 : 148.87) : outputPosition ? 120.95 : 134.37,
+            x: useAffiliation
+              ? outputPosition
+                ? 82.2
+                : 53.42
+              : outputPosition
+              ? 75.44
+              : 46.66,
+            y: useAffiliation
+              ? outputPosition
+                ? 135.45
+                : 148.87
+              : outputPosition
+              ? 120.95
+              : 134.37,
           },
           width: outputPosition ? 72.5 : 100,
           height: 8.5,
@@ -123,7 +137,7 @@ export const destSchema = ({
           fontSize: 24,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
       },
     ],
@@ -163,7 +177,7 @@ export const senderSchema = ({
           fontSize: 10,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         senderAddress2: {
           rotate: 25,
@@ -178,7 +192,7 @@ export const senderSchema = ({
           fontSize: 10,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         senderAffiliation1: {
           rotate: 25,
@@ -187,13 +201,13 @@ export const senderSchema = ({
             x: useAffiliation ? 120.69 : 0,
             y: useAffiliation ? 242.19 : 0,
           },
-          width: useAffiliation? 81.5 : 0,
-          height: useAffiliation? 4 : 0,
+          width: useAffiliation ? 81.5 : 0,
+          height: useAffiliation ? 4 : 0,
           alignment: "left",
           fontSize: 10,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         senderAffiliation2: {
           rotate: 25,
@@ -208,7 +222,7 @@ export const senderSchema = ({
           fontSize: 10,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
         senderName: {
           rotate: 25,
@@ -223,7 +237,7 @@ export const senderSchema = ({
           fontSize: 12,
           characterSpacing: 0,
           lineHeight: 1,
-          fontName: "noto_sans_jp",
+          fontName,
         },
       },
     ],

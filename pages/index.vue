@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { RefreshLeft } from "@element-plus/icons-vue";
+import { WarnTriangleFilled } from "@element-plus/icons-vue";
 import { Template, generate } from "@pdfme/generator";
 import { Viewer } from "@pdfme/ui";
 import { schema as envelopeVSchema } from "~/scripts/pdf_schemas/envelope-v";
@@ -125,6 +125,15 @@ const createPdf = async () => {
   transform-origin: 5% 80% 0;
   transform: rotate(-25deg);
 }
+
+dt {
+  @apply font-bold;
+}
+
+dd {
+  margin-bottom: 0.5em;
+  margin-inline-start: 40px;
+}
 </style>
 
 <template>
@@ -132,34 +141,16 @@ const createPdf = async () => {
 
   <div class="max-w-screen-xl px-4 py-12 mx-auto flex gap-3">
     <div class="flex-shrink">
-      <el-form :model="form" label-position="top">
-        <el-form-item>
-          <h2 class="text-lg">宛先</h2>
-        </el-form-item>
+      <lazy-envelope-form
+        :form="form"
+        :create-pdf="createPdf"
+        :reset-dest="resetDest"
+        :reset-sender="resetSender"
+      />
 
-        <dest-form-items :form="form" />
-
-        <el-form-item>
-          <h2 class="text-lg">差出人</h2>
-        </el-form-item>
-
-        <sender-form-items :form="form" />
-
-        <div>
-          <el-button type="primary" @click="createPdf"
-            >封筒を作成する</el-button
-          >
-          <el-button type="warning" @click="resetDest" :icon="RefreshLeft">
-            宛先をリセット
-          </el-button>
-          <el-button type="warning" @click="resetSender" :icon="RefreshLeft">
-            差出人をリセット
-          </el-button>
-        </div>
-      </el-form>
       <div class="mt-4">
         <p class="text-sm">
-          PDFの印刷方法や作り方、完成した封筒のサイズ感はテンプレート提供者様のサイトをご確認ください。
+          PDFの印刷方法や作り方、完成した封筒のサイズ感は折り紙JAPAN様のサイトをご確認ください。
         </p>
         <el-link
           type="primary"
@@ -167,8 +158,39 @@ const createPdf = async () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          折り紙JAPAN: A4用紙とのりで作る封筒 テンプレート
+          A4用紙とのりで作る封筒 テンプレート | 折り紙JAPAN
         </el-link>
+      </div>
+
+      <div
+        role="alert"
+        class="mt-4 rounded border-l-4 border-yellow-500 bg-yellow-50 p-4"
+      >
+        <strong class="block font-blod text-yellow-700">
+          <el-icon><WarnTriangleFilled /></el-icon>印刷に関しての注意事項
+        </strong>
+
+        <p class="mt-2 text-sm text-yellow-700">
+          印刷機・プリンターによっては文字化け等により正しく印刷できない場合がございますので予めご了承ください。
+        </p>
+
+        <dl class="mt-2 text-sm text-yellow-700">
+          <dt>コンビニエンスストアのマルチプリンタ</dt>
+          <dd>
+            <dl>
+              <dt>セブン-イレブン（富士フィルム社製）</dt>
+              <dd>問題なく印刷できました</dd>
+              <dt>セイコーマート（京セラ社製）</dt>
+              <dd>
+                プレビュー表示では正しく表示されますが、印刷物は文字化けしたものが出力されました
+              </dd>
+            </dl>
+          </dd>
+        </dl>
+
+        <p class="mt-2 text-sm text-yellow-700">
+          なお、印刷結果についてお気軽にお寄せください。
+        </p>
       </div>
     </div>
     <div class="flex-grow hidden sm:block">
