@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { RefreshLeft } from "@element-plus/icons-vue";
 import { Template, generate } from "@pdfme/generator";
 import { Viewer } from "@pdfme/ui";
 import { schema as envelopeVSchema } from "~/scripts/pdf_schemas/envelope-v";
@@ -132,31 +131,13 @@ const createPdf = async () => {
 
   <div class="max-w-screen-xl px-4 py-12 mx-auto flex gap-3">
     <div class="flex-shrink">
-      <el-form :model="form" label-position="top">
-        <el-form-item>
-          <h2 class="text-lg">宛先</h2>
-        </el-form-item>
+      <lazy-envelope-form
+        :form="form"
+        :create-pdf="createPdf"
+        :reset-dest="resetDest"
+        :reset-sender="resetSender"
+      />
 
-        <dest-form-items :form="form" />
-
-        <el-form-item>
-          <h2 class="text-lg">差出人</h2>
-        </el-form-item>
-
-        <sender-form-items :form="form" />
-
-        <div>
-          <el-button type="primary" @click="createPdf"
-            >封筒を作成する</el-button
-          >
-          <el-button type="warning" @click="resetDest" :icon="RefreshLeft">
-            宛先をリセット
-          </el-button>
-          <el-button type="warning" @click="resetSender" :icon="RefreshLeft">
-            差出人をリセット
-          </el-button>
-        </div>
-      </el-form>
       <div class="mt-4">
         <p class="text-sm">
           PDFの印刷方法や作り方、完成した封筒のサイズ感はテンプレート提供者様のサイトをご確認ください。
