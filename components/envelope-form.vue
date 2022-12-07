@@ -3,8 +3,6 @@ import { RefreshLeft } from "@element-plus/icons-vue";
 import {
   DestForm,
   SenderForm,
-  defaultDest,
-  defaultSender,
 } from "~/scripts/forms/schema";
 
 interface Props {

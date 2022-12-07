@@ -1,3 +1,4 @@
+public/cmaps
 node_modules
 *.log*
 .nuxt

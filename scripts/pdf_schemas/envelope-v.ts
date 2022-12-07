@@ -1,6 +1,6 @@
 import { Template } from "@pdfme/generator";
 
-const fontName = "noto_sans_jp";
+const fontName = "Noto Sans JP";
 
 export const destSchema = ({
   outputPosition = false,
