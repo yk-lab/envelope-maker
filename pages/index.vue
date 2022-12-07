@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { WarnTriangleFilled } from "@element-plus/icons-vue";
 import { Template, generate } from "@pdfme/generator";
 import { Viewer } from "@pdfme/ui";
 import { schema as envelopeVSchema } from "~/scripts/pdf_schemas/envelope-v";
@@ -124,6 +125,15 @@ const createPdf = async () => {
   transform-origin: 5% 80% 0;
   transform: rotate(-25deg);
 }
+
+dt {
+  @apply font-bold;
+}
+
+dd {
+  margin-bottom: 0.5em;
+  margin-inline-start: 40px;
+}
 </style>
 
 <template>
@@ -140,7 +150,7 @@ const createPdf = async () => {
 
       <div class="mt-4">
         <p class="text-sm">
-          PDFの印刷方法や作り方、完成した封筒のサイズ感はテンプレート提供者様のサイトをご確認ください。
+          PDFの印刷方法や作り方、完成した封筒のサイズ感は折り紙JAPAN様のサイトをご確認ください。
         </p>
         <el-link
           type="primary"
@@ -148,8 +158,39 @@ const createPdf = async () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          折り紙JAPAN: A4用紙とのりで作る封筒 テンプレート
+          A4用紙とのりで作る封筒 テンプレート | 折り紙JAPAN
         </el-link>
+      </div>
+
+      <div
+        role="alert"
+        class="mt-4 rounded border-l-4 border-yellow-500 bg-yellow-50 p-4"
+      >
+        <strong class="block font-blod text-yellow-700">
+          <el-icon><WarnTriangleFilled /></el-icon>印刷に関しての注意事項
+        </strong>
+
+        <p class="mt-2 text-sm text-yellow-700">
+          印刷機・プリンターによっては文字化け等により正しく印刷できない場合がございますので予めご了承ください。
+        </p>
+
+        <dl class="mt-2 text-sm text-yellow-700">
+          <dt>コンビニエンスストアのマルチプリンタ</dt>
+          <dd>
+            <dl>
+              <dt>セブン-イレブン（富士フィルム社製）</dt>
+              <dd>問題なく印刷できました</dd>
+              <dt>セイコーマート（京セラ社製）</dt>
+              <dd>
+                プレビュー表示では正しく表示されますが、印刷物は文字化けしたものが出力されました
+              </dd>
+            </dl>
+          </dd>
+        </dl>
+
+        <p class="mt-2 text-sm text-yellow-700">
+          なお、印刷結果についてお気軽にお寄せください。
+        </p>
       </div>
     </div>
     <div class="flex-grow hidden sm:block">

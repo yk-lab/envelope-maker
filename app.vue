@@ -48,11 +48,35 @@ dd {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    折り紙JAPAN: A4用紙とのりで作る封筒 テンプレート
+                    A4用紙とのりで作る封筒 テンプレート | 折り紙JAPAN
                   </el-link>
                 </dt>
                 <dd>テンプレートPDFをサービス提供に使用</dd>
               </dl>
+            </div>
+            <div class="mt-4 max-w-md leading-relaxed text-gray-500">
+              <h2 class="font-bold">ご案内</h2>
+              <div class="text-sm">
+                <p class="max-w-md leading-relaxed text-gray-500">
+                  権利侵害のご申告、その他お問合せは Twitter の DM
+                  にお寄せください。
+                </p>
+                <p class="max-w-md leading-relaxed text-gray-500">
+                  バグ報告や機能提案は GitHub にお寄せください。
+                  なお、セキュリティ上の重大な問題については Twitter の DM
+                  にてお知らせください。
+                </p>
+              </div>
+            </div>
+            <div class="mt-4 max-w-md leading-relaxed text-gray-500">
+              <h2 class="font-bold">免責</h2>
+              <div class="text-sm">
+                <p class="max-w-md leading-relaxed text-gray-500">
+                  当サイトにコンテンツを掲載するにあたって、その内容、機能等について細心の注意を払っておりますが、コンテンツの内容が正確であるかどうか、最新のものであるかどうか、安全なものであるか等について保証をするものではなく、何らの責任を負うものではありません。
+                  また、当方は通知することなく当サイトに掲載した情報の訂正、修正、追加、中断、削除等をいつでも行うことができるものとします。
+                  また、当サイト、またはコンテンツのご利用により、万一、ご利用者様に何らかの不都合や損害が発生したとしても、当方は何らの責任を負うものではありません。
+                </p>
+              </div>
             </div>
             <div class="flex gap-4 mt-4">
               <a
