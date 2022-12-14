@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { WarnTriangleFilled } from "@element-plus/icons-vue";
-import { Template, generate } from "@pdfme/generator";
-import { Viewer } from "@pdfme/ui";
+import { Template, Font } from "@pdfme/common";
 import { schema as envelopeVSchema } from "~/scripts/pdf_schemas/envelope-v";
 import {
   DestForm,
@@ -10,17 +9,35 @@ import {
   defaultSender,
 } from "~/scripts/forms/schema";
 
-const font = {
-  noto_sans_jp: {
-    data: await fetch("/fonts/NotoSansJP-Regular.otf").then((res) =>
-      res.arrayBuffer()
-    ),
-    fallback: true,
-    subset: false,
-  },
-};
+const cachedFont = ref<Font>();
+const font = ref(
+  new Promise<Font>(async (resolve) => {
+    if (!cachedFont.value) {
+      cachedFont.value = {
+        "Noto Sans JP": {
+          data: await fetch("/fonts/NotoSansJP-Regular.otf").then((res) =>
+            res.arrayBuffer()
+          ),
+          fallback: true,
+          subset: false,
+        },
+      };
+    }
+    resolve(cachedFont.value!);
+  })
+);
 
-const previewContainer = ref<HTMLElement>();
+const cachedTemplatePDF = ref<string>();
+const templatePDF = ref(
+  new Promise<string>(async (resolve) => {
+    if (!cachedTemplatePDF.value) {
+      cachedTemplatePDF.value = await fetch(
+        "/template_pdf/envelope-v.pdf"
+      ).then(async (res) => URL.createObjectURL(await res.blob()));
+    }
+    resolve(cachedTemplatePDF.value!);
+  })
+);
 
 const form = ref<DestForm & SenderForm>({
   ...defaultDest(),
@@ -69,10 +86,7 @@ const template = computed(async (): Promise<Template> => {
     _inputs[0].senderAffiliation2.length > 0;
 
   return {
-    basePdf: await fetch("/template_pdf/envelope-v.pdf").then(async (res) =>
-      // res.arrayBuffer()
-      URL.createObjectURL(await res.blob())
-    ),
+    basePdf: await templatePDF.value,
     schemas: envelopeVSchema({
       outputDestPosition,
       useDestAffiliation,
@@ -81,51 +95,36 @@ const template = computed(async (): Promise<Template> => {
   };
 });
 
-onMounted(() => {
-  template.value.then((temp) => {
-    const viewer = new Viewer({
-      domContainer: previewContainer.value!,
-      template: temp,
-      inputs: inputs.value,
-      options: {
-        font,
-        lang: "ja",
-      },
-    });
-    watch(inputs, (inputs) => {
-      viewer.setInputs(inputs);
-    });
-    watch(template, (template) => {
-      template.then((temp) => {
-        viewer.updateTemplate(temp);
-      });
-    });
-  });
-});
-
 const createPdf = async () => {
-  template.value.then((template) => {
+  const { generate } = await import("@pdfme/generator");
+  template.value.then(async (template) => {
     generate({
       template,
       inputs: inputs.value,
-      options: { font },
+      options: { font: await font.value },
     }).then((pdf) => {
       console.log(pdf);
-
       // Browser
       const blob = new Blob([pdf.buffer], { type: "application/pdf" });
       window.open(URL.createObjectURL(blob));
     });
   });
 };
+
+useHead({
+  title: "封筒ツクール",
+  meta: [
+    {
+      hid: "description",
+      name: "description",
+      content:
+        "どなたでも無料でお使いいただけるオープンソースの宛名・差出人入り封筒のA4サイズ印刷用PDFの作成ツールです。PDFはブラウザ上で作成するため、住所・名前などの情報はインターネット上に送信されないので安心してお使いいただけます。出来上がりはA4用紙を三つ折りで入れることができるサイズです。",
+    },
+  ],
+});
 </script>
 
 <style lang="scss" scoped>
-.pdf-preview:deep(.selectable) {
-  transform-origin: 5% 80% 0;
-  transform: rotate(-25deg);
-}
-
 dt {
   @apply font-bold;
 }
@@ -139,8 +138,8 @@ dd {
 <template>
   <hero-header />
 
-  <div class="max-w-screen-xl px-4 py-12 mx-auto flex gap-3">
-    <div class="flex-shrink">
+  <div class="max-w-screen-xl py-12 mx-auto flex gap-3">
+    <div class="flex-shrink max-w-[480px]">
       <lazy-envelope-form
         :form="form"
         :create-pdf="createPdf"
@@ -194,7 +193,18 @@ dd {
       </div>
     </div>
     <div class="flex-grow hidden sm:block">
-      <aside ref="previewContainer" class="pdf-preview"></aside>
+      <div class="sticky h-fit top-0 max-h-screen">
+        <suspense>
+          <template #default>
+            <lazy-pdf-preview
+              :template="template"
+              :inputs="inputs"
+              :font="font"
+            />
+          </template>
+          <template #fallback> Loading... </template>
+        </suspense>
+      </div>
     </div>
   </div>
 </template>

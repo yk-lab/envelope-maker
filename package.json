@@ -1,15 +1,16 @@
 {
   "private": true,
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
+    "build": "mkdir -p ./public/cmaps && cp -r ./node_modules/pdfjs-dist/cmaps/ ./public/cmaps && nuxt build",
+    "dev": "mkdir -p ./public/cmaps && cp -r ./node_modules/pdfjs-dist/cmaps/ ./public/cmaps && nuxt dev",
+    "generate": "mkdir -p ./public/cmaps && cp -r ./node_modules/pdfjs-dist/cmaps/ ./public/cmaps && nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
     "@element-plus/icons-vue": "2.0.10",
     "@headlessui/vue": "1.7.4",
+    "@nuxtjs/google-fonts": "3.0.0-1",
     "@nuxtjs/tailwindcss": "6.1.3",
     "@pdfme/generator": "1.0.17",
     "@pdfme/ui": "1.0.17",
