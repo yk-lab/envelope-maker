@@ -31,14 +31,16 @@ const font = ref(
 
 const cachedTemplatePDF = ref<string>();
 const templatePDF = ref(
-  new Promise<string>(async (resolve) => {
-    if (!cachedTemplatePDF.value) {
-      cachedTemplatePDF.value = await fetch(
-        "/template_pdf/envelope-v.pdf"
-      ).then(async (res) => URL.createObjectURL(await res.blob()));
-    }
-    resolve(cachedTemplatePDF.value!);
-  })
+  () =>
+    new Promise<string>(async (resolve) => {
+      if (!cachedTemplatePDF.value) {
+        cachedTemplatePDF.value = await fetch("/template_pdf/envelope-v.pdf", {
+          // @ts-ignore
+          priority: "low",
+        }).then(async (res) => URL.createObjectURL(await res.blob()));
+      }
+      resolve(cachedTemplatePDF.value!);
+    })
 );
 
 const form = ref<DestForm & SenderForm>({
@@ -88,7 +90,7 @@ const template = computed(async (): Promise<Template> => {
     _inputs[0].senderAffiliation2.length > 0;
 
   return {
-    basePdf: await templatePDF.value,
+    basePdf: await templatePDF.value(),
     schemas: envelopeVSchema({
       outputDestPosition,
       useDestAffiliation,
