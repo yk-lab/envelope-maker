@@ -11,20 +11,22 @@ import {
 
 const cachedFont = ref<Font>();
 const font = ref(
-  new Promise<Font>(async (resolve) => {
-    if (!cachedFont.value) {
-      cachedFont.value = {
-        "Noto Sans JP": {
-          data: await fetch("/fonts/NotoSansJP-Regular.otf").then((res) =>
-            res.arrayBuffer()
-          ),
-          fallback: true,
-          subset: false,
-        },
-      };
-    }
-    resolve(cachedFont.value!);
-  })
+  () =>
+    new Promise<Font>(async (resolve) => {
+      if (!cachedFont.value) {
+        cachedFont.value = {
+          "Noto Sans JP": {
+            data: await fetch("/fonts/NotoSansJP-Regular.otf", {
+              // @ts-ignore
+              priority: "low",
+            }).then((res) => res.arrayBuffer()),
+            fallback: true,
+            subset: false,
+          },
+        };
+      }
+      resolve(cachedFont.value!);
+    })
 );
 
 const cachedTemplatePDF = ref<string>();
@@ -101,7 +103,7 @@ const createPdf = async () => {
     generate({
       template,
       inputs: inputs.value,
-      options: { font: await font.value },
+      options: { font: await font.value() },
     }).then((pdf) => {
       console.log(pdf);
       // Browser

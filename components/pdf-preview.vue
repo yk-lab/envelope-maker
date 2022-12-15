@@ -7,7 +7,7 @@ const preparingPreview = ref();
 interface Props {
   template: Promise<Template>;
   inputs: Record<string, string>[];
-  font: Promise<Font>;
+  font: () => Promise<Font>;
 }
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -24,7 +24,7 @@ onMounted(() => {
         template: temp,
         inputs: props.inputs,
         options: {
-          font: await props.font,
+          font: await props.font(),
           lang: "ja",
         },
       });
