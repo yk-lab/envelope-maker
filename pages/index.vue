@@ -115,6 +115,15 @@ const createPdf = async () => {
   });
 };
 
+const innerWidth = ref();
+const isCompactMode = computed(() => {
+  innerWidth.value = window.innerWidth;
+  window.addEventListener("resize", () => {
+    innerWidth.value = window.innerWidth;
+  });
+  return innerWidth.value < 640;
+});
+
 useHead({
   title: "封筒ツクール",
   meta: [
@@ -196,7 +205,7 @@ dd {
         </p>
       </div>
     </div>
-    <div class="flex-grow hidden sm:block">
+    <div v-if="!isCompactMode" class="flex-grow hidden sm:block">
       <div class="sticky h-fit top-0 max-h-screen">
         <suspense>
           <template #default>
