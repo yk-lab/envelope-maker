@@ -24,7 +24,6 @@
     "element-plus": "2.3.4",
     "eslint": "^8.39.0",
     "nuxt": "3.4.2",
-    "pinia": "2.0.35",
     "postcss": "8.4.23",
     "tailwindcss": "3.3.2",
     "typescript": "^5.0.4",
