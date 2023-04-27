@@ -43,7 +43,7 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .pdf-preview:deep(.selectable) {
   transform-origin: 5% 80% 0;
   transform: rotate(-25deg);
