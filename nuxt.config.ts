@@ -1,12 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-
-import AutoImport from "unplugin-auto-import/vite";
-import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-import IconsResolver from "unplugin-icons/resolver";
-
 export default defineNuxtConfig({
-  ssr: false,
   app: {
     head: {
       htmlAttrs: {
@@ -29,12 +22,8 @@ export default defineNuxtConfig({
       ],
     },
   },
-  css: ["~/assets/index.scss"],
-  modules: [
-    "@nuxtjs/google-fonts",
-    "unplugin-icons/nuxt",
-    "@nuxtjs/tailwindcss",
-  ],
+  css: ["~/assets/index.css"],
+  modules: ["@element-plus/nuxt", "@nuxtjs/google-fonts"],
   googleFonts: {
     display: "swap",
     families: {
@@ -44,33 +33,13 @@ export default defineNuxtConfig({
   },
   postcss: {
     plugins: {
-      "postcss-import": {},
-      "tailwindcss/nesting": {},
       tailwindcss: {},
       autoprefixer: {},
     },
-  },
-  tailwindcss: {
-    configPath: "tailwind.config.ts",
   },
   typescript: {
     strict: true,
     shim: false,
     typeCheck: true,
-  },
-  vite: {
-    plugins: [
-      // ...
-      AutoImport({
-        resolvers: [ElementPlusResolver()],
-      }),
-      Components({
-        resolvers: [ElementPlusResolver()],
-      }),
-      Components({
-        dts: true,
-        resolvers: [IconsResolver({})],
-      }),
-    ],
   },
 });

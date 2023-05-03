@@ -21,7 +21,7 @@ const font = ref(
               priority: "low",
             }).then((res) => res.arrayBuffer()),
             fallback: true,
-            subset: false,
+            // subset: false,
           },
         };
       }
@@ -137,7 +137,7 @@ useHead({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 dt {
   @apply font-bold;
 }
@@ -149,74 +149,76 @@ dd {
 </style>
 
 <template>
-  <hero-header />
+  <div>
+    <hero-header />
 
-  <div class="max-w-screen-xl py-12 mx-auto flex gap-3">
-    <div class="flex-shrink max-w-[480px]">
-      <lazy-envelope-form
-        :form="form"
-        :create-pdf="createPdf"
-        :reset-dest="resetDest"
-        :reset-sender="resetSender"
-      />
+    <div class="max-w-screen-xl py-12 mx-auto flex gap-3">
+      <div class="flex-shrink max-w-[480px]">
+        <lazy-envelope-form
+          :form="form"
+          :create-pdf="createPdf"
+          :reset-dest="resetDest"
+          :reset-sender="resetSender"
+        />
 
-      <div class="mt-4">
-        <p class="text-sm">
-          PDFの印刷方法や作り方、完成した封筒のサイズ感は折り紙JAPAN様のサイトをご確認ください。
-        </p>
-        <el-link
-          type="primary"
-          href="https://origamijapan.net/jp/envelope-temp/"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div class="mt-4">
+          <p class="text-sm">
+            PDFの印刷方法や作り方、完成した封筒のサイズ感は折り紙JAPAN様のサイトをご確認ください。
+          </p>
+          <el-link
+            type="primary"
+            href="https://origamijapan.net/jp/envelope-temp/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            A4用紙とのりで作る封筒 テンプレート | 折り紙JAPAN
+          </el-link>
+        </div>
+
+        <div
+          role="alert"
+          class="mt-4 rounded border-l-4 border-yellow-500 bg-yellow-50 p-4"
         >
-          A4用紙とのりで作る封筒 テンプレート | 折り紙JAPAN
-        </el-link>
+          <strong class="block font-blod text-yellow-700">
+            <el-icon><WarnTriangleFilled /></el-icon>印刷に関しての注意事項
+          </strong>
+
+          <p class="mt-2 text-sm text-yellow-700">
+            印刷機・プリンターによっては文字化け等により正しく印刷できない場合がございますので予めご了承ください。
+          </p>
+
+          <dl class="mt-2 text-sm text-yellow-700">
+            <dt>コンビニエンスストアのマルチプリンタ</dt>
+            <dd>
+              <dl>
+                <dt>セブン-イレブン（富士フィルム社製）</dt>
+                <dd>問題なく印刷できました</dd>
+                <dt>セイコーマート（京セラ社製）</dt>
+                <dd>
+                  プレビュー表示では正しく表示されますが、印刷物は文字化けしたものが出力されました
+                </dd>
+              </dl>
+            </dd>
+          </dl>
+
+          <p class="mt-2 text-sm text-yellow-700">
+            なお、印刷結果についてお気軽にお寄せください。
+          </p>
+        </div>
       </div>
-
-      <div
-        role="alert"
-        class="mt-4 rounded border-l-4 border-yellow-500 bg-yellow-50 p-4"
-      >
-        <strong class="block font-blod text-yellow-700">
-          <el-icon><WarnTriangleFilled /></el-icon>印刷に関しての注意事項
-        </strong>
-
-        <p class="mt-2 text-sm text-yellow-700">
-          印刷機・プリンターによっては文字化け等により正しく印刷できない場合がございますので予めご了承ください。
-        </p>
-
-        <dl class="mt-2 text-sm text-yellow-700">
-          <dt>コンビニエンスストアのマルチプリンタ</dt>
-          <dd>
-            <dl>
-              <dt>セブン-イレブン（富士フィルム社製）</dt>
-              <dd>問題なく印刷できました</dd>
-              <dt>セイコーマート（京セラ社製）</dt>
-              <dd>
-                プレビュー表示では正しく表示されますが、印刷物は文字化けしたものが出力されました
-              </dd>
-            </dl>
-          </dd>
-        </dl>
-
-        <p class="mt-2 text-sm text-yellow-700">
-          なお、印刷結果についてお気軽にお寄せください。
-        </p>
-      </div>
-    </div>
-    <div v-if="!isCompactMode" class="flex-grow hidden sm:block">
-      <div class="sticky h-fit top-0 max-h-screen">
-        <suspense>
-          <template #default>
-            <lazy-pdf-preview
-              :template="template"
-              :inputs="inputs"
-              :font="font"
-            />
-          </template>
-          <template #fallback> Loading... </template>
-        </suspense>
+      <div v-if="!isCompactMode" class="flex-grow hidden sm:block">
+        <div class="sticky h-fit top-0 max-h-screen">
+          <suspense>
+            <template #default>
+              <lazy-pdf-preview
+                :template="template"
+                :inputs="inputs"
+                :font="font"
+              />
+            </template>
+            <template #fallback> Loading... </template>
+          </suspense>
+        </div>
       </div>
     </div>
   </div>
