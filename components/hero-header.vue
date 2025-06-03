@@ -1,7 +1,9 @@
 <template>
   <section>
     <div class="max-w-screen-xl py-16 mx-auto text-center lg:py-32">
-      <h1 class="text-4xl font-bold text-gray-900 sm:text-6xl">封筒ツクール</h1>
+      <h1 class="text-4xl font-bold text-gray-900 sm:text-6xl">
+        封筒ツクール
+      </h1>
       <h2 class="mt-4 text-gray-700">
         簡単に宛名・差出人入りのハサミがいらない封筒の印刷用PDFを作成できます。
       </h2>

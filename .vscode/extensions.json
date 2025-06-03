@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "christian-kohler.npm-intellisense",
+    "cpylua.language-postcss",
+    "csstools.postcss",
+    "dbaeumer.vscode-eslint",
+    "nuxtr.nuxt-vscode-extentions",
+    "nuxtr.nuxtr-vscode",
+    "vue.volar"
+  ]
+}

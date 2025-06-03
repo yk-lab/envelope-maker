@@ -1,6 +1,48 @@
 {
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "tsconfig.json": "tsconfig.*.json, env.d.ts",
+    "vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*, vitest.setup.*",
+    "package.json": "bun.lock, .eslint*, eslint*, .editorconfig, lefthook*, cspell.json, sonar-project.properties, codecov.yml, postcss.config.js, .yamlfmt, .yamlignore, .yamllint"
+  },
   "editor.codeActionsOnSave": {
-    "source.fixAll": false,
-    "source.fixAll.eslint": true
-  }
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit",
+  },
+  "editor.formatOnSave": true,
+  "tailwindCSS.experimental.configFile": ".nuxt/tailwind/postcss.mjs",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "ui:\\s*{([^)]*)\\s*}",
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ],
+    [
+      "/\\*\\s?ui\\s?\\*/\\s*{([^;]*)}",
+      ":\\s*[\"'`]([^\"'`]*).*?[\"'`]"
+    ]
+  ],
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "ngClass",
+    "ui"
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  },
+  "[json]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  },
 }
