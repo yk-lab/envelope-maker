@@ -28,6 +28,7 @@
                   class="hover:underline"
                   to="https://pdfme.com/"
                   target="_blank"
+                  rel="noopener noreferrer"
                   external
                   no-prefetch
                 >
@@ -40,6 +41,7 @@
                   class="hover:underline"
                   to="https://origamijapan.net/jp/envelope-temp/"
                   target="_blank"
+                  rel="noopener noreferrer"
                   external
                   no-prefetch
                 >
@@ -63,6 +65,7 @@
                 class="hover:underline"
                 to="https://yk.works"
                 target="_blank"
+                rel="noopener noreferrer"
                 external
                 no-prefetch
               >こちらのお問い合わせフォーム<UIcon
@@ -78,6 +81,7 @@
                 class="hover:underline"
                 to="https://yk.works"
                 target="_blank"
+                rel="noopener noreferrer"
                 external
                 no-prefetch
               >こちらのお問い合わせフォーム<UIcon

@@ -8,6 +8,7 @@
         aria-label="X (旧Twitter)"
         to="https://twitter.com/YetAnother_yk/"
         target="_blank"
+        rel="noopener noreferrer"
         external
         no-prefetch
       />
@@ -22,6 +23,7 @@
         aria-label="GitHub"
         to="https://github.com/yk-lab/envelope-maker"
         target="_blank"
+        rel="noopener noreferrer"
         external
         no-prefetch
       />
@@ -35,6 +37,7 @@
           class="px-0"
           to="https://twitter.com/YetAnother_yk/"
           target="_blank"
+          rel="noopener noreferrer"
           exact
         >
           @YetAnother_yk

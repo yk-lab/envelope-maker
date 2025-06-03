@@ -27,7 +27,7 @@ export const defaultDest = (): DestForm => {
     destAffiliation2: '',
     destPosition: '',
     destName: '',
-    destHonorific: '',
+    destHonorific: '様',
   };
 };
 export const defaultSender = (): SenderForm => {

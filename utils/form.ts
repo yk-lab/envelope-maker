@@ -11,8 +11,8 @@ export const convertFormToTemplateInput = (form: DestForm & SenderForm) => {
   delete data.destZipcode;
   delete data.destHonorific;
 
-  const destZipcode1 = destZipcode.substring(0, 3);
-  const destZipcode2 = destZipcode.substring(3, 7);
+  const destZipcode1 = (destZipcode.length > 0) ? destZipcode.substring(0, Math.min(3, destZipcode.length)) : '';
+  const destZipcode2 = (destZipcode.length > 3) ? destZipcode.substring(3, Math.min(7, destZipcode.length)) : '';
   data.senderZipcode
     = data.senderZipcode.length > 0
       ? `〒${data.senderZipcode}`

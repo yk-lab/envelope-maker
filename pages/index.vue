@@ -65,6 +65,7 @@ const { isCompactMode } = useScreenSize();
             trailing-icon="i-mdi-open-in-new"
             to="https://origamijapan.net/jp/envelope-temp/"
             target="_blank"
+            rel="noopener noreferrer"
             external
           >
             A4用紙とのりで作る封筒 テンプレート | 折り紙JAPAN

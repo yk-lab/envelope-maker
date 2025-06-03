@@ -1,6 +1,6 @@
-export function useScreenSize() {
+export function useScreenSize(breakpoint: number = 640) {
   const innerWidth = ref(0);
-  const isCompactMode = computed(() => innerWidth.value < 640);
+  const isCompactMode = computed(() => innerWidth.value < breakpoint);
 
   // ウィンドウサイズを更新
   const updateWindowSize = () => {

@@ -2,6 +2,13 @@
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue';
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
+const HONORIFIC_OPTIONS = [
+  { name: '（なし）', value: '' },
+  { name: '様', value: '様' },
+  { name: '御中', value: '御中' },
+  { name: '行', value: '行' },
+] as const;
+
 const model = defineModel<DestForm & SenderForm>({ required: true });
 </script>
 
@@ -58,12 +65,7 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
       class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4"
     >
       <RadioGroupOption
-        v-for="option in [
-          { name: '（なし）', value: '' },
-          { name: '様', value: '様' },
-          { name: '御中', value: '御中' },
-          { name: '行', value: '行' },
-        ]"
+        v-for="option in HONORIFIC_OPTIONS"
         :key="`dest-honorific-${option.value}`"
         v-slot="{ active, checked }"
         as="template"
