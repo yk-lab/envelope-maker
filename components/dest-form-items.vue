@@ -53,7 +53,7 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
     label="お名前"
     placeholder="お届け先のお名前を入力してください"
   />
-  <fieldset aria-label="Choose a memory option">
+  <fieldset aria-label="敬称を選択">
     <div class="flex items-center justify-between">
       <div class="text-sm/6 font-medium text-highlighted">
         敬称

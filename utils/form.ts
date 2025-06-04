@@ -6,9 +6,9 @@ export const convertFormToTemplateInput = (form: DestForm & SenderForm) => {
     destHonorific?: string;
   } = { ...form };
 
-  const destZipcode = data.destZipcode?.replace('-', '') ?? '';
+  const destZipcode = data.destZipcode?.replaceAll('-', '') ?? '';
   const honorific = data.destHonorific?.trim();
-  data.destName += honorific ? ` ${honorific}` : '';
+  data.destName = (data.destName || '') + (honorific ? ` ${honorific}` : '');
   data.destZipcode = undefined;
   data.destHonorific = undefined;
 

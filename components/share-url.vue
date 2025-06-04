@@ -9,11 +9,11 @@
         共有する情報
       </label>
       <div class="flex gap-4">
-        <UCheckbox
+        <USwitch
           v-model="includeDestination"
           label="宛先情報を含める"
         />
-        <UCheckbox
+        <USwitch
           v-model="includeSender"
           label="差出人情報を含める"
         />
@@ -103,7 +103,7 @@ const generateQueryParams = (formData: DestForm & SenderForm): string => {
 };
 
 const shareUrl = computed(() => {
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = 'https://envelope-maker.yk.works/';
   const queryString = generateQueryParams(props.formData);
   return queryString ? `${baseUrl}?${queryString}` : baseUrl;
 });
