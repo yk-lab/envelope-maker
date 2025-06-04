@@ -3,7 +3,7 @@
     <template #top>
       <UContainer class="text-left">
         <ULink
-          class="text-gray-800 font-bold text-xl"
+          class="text-highlighted font-bold text-xl"
           to="/"
         >
           封筒ツクール
@@ -17,7 +17,7 @@
       <div class="flex flex-col items-start space-y-4">
         <section>
           <header>
-            <h2 class="font-semibold text-gray-600">
+            <h2 class="font-semibold text-toned">
               Special thanks!
             </h2>
           </header>
@@ -54,7 +54,7 @@
         </section>
         <section>
           <header>
-            <h2 class="font-semibold text-gray-600">
+            <h2 class="font-semibold text-toned">
               ご案内
             </h2>
           </header>
@@ -94,7 +94,7 @@
         </section>
         <section>
           <header>
-            <h2 class="font-semibold text-gray-600">
+            <h2 class="font-semibold text-toned">
               免責
             </h2>
           </header>
