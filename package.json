@@ -1,32 +1,57 @@
 {
   "name": "nuxt-app",
   "private": true,
+  "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912",
+  "engines": {
+    "node": "22.13.x"
+  },
   "scripts": {
-    "build": "mkdir -p ./public/cmaps && cp -r ./node_modules/pdfjs-dist/cmaps/ ./public/cmaps && nuxt build",
-    "dev": "mkdir -p ./public/cmaps && cp -r ./node_modules/pdfjs-dist/cmaps/ ./public/cmaps && nuxt dev",
-    "generate": "mkdir -p ./public/cmaps && cp -r ./node_modules/pdfjs-dist/cmaps/ ./public/cmaps && nuxt generate",
+    "preinstall": "npx only-allow pnpm",
+    "nuxt": "nuxt",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
-    "lint": "eslint --ext .ts,.js,.vue ."
+    "lint:js": "eslint .",
+    "lint:prettier": "prettier --check .",
+    "lint": "pnpm lint:js && pnpm lint:prettier",
+    "lintfix": "prettier --write --list-different . && pnpm lint:js --fix"
   },
   "devDependencies": {
-    "@element-plus/icons-vue": "2.1.0",
-    "@element-plus/nuxt": "1.0.4",
-    "@headlessui/vue": "1.7.13",
-    "@nuxtjs/eslint-config": "^12.0.0",
-    "@nuxtjs/google-fonts": "3.0.0",
-    "@pdfme/generator": "1.1.10",
-    "@pdfme/ui": "1.1.10",
-    "@tailwindcss/typography": "0.5.9",
-    "@types/node": "18.16.1",
-    "autoprefixer": "10.4.14",
-    "element-plus": "2.3.4",
-    "eslint": "^8.39.0",
-    "nuxt": "3.4.2",
-    "postcss": "8.4.23",
-    "tailwindcss": "3.3.2",
-    "typescript": "^5.0.4",
-    "vue-tsc": "^1.6.0"
+    "@anthropic-ai/claude-code": "1.0.6",
+    "@headlessui/vue": "1.7.23",
+    "@nuxt/devtools": "2.3.0",
+    "@nuxt/eslint": "1.2.0",
+    "@nuxt/ui-pro": "3.1.3",
+    "@pdfme/common": "5.3.19",
+    "@pdfme/generator": "5.3.19",
+    "@pdfme/schemas": "5.3.19",
+    "@pdfme/ui": "5.3.19",
+    "@types/eslint-plugin-tailwindcss": "3.17.0",
+    "@types/node": "22.13.10",
+    "@vueuse/core": "13.0.0",
+    "autoprefixer": "10.4.21",
+    "eslint": "^9.28.0",
+    "nuxt": "3.17.4",
+    "nuxt-jsonld": "2.1.0",
+    "postcss": "8.5.3",
+    "tiny-invariant": "1.3.3",
+    "typescript": "5.8.2",
+    "vue-tsc": "^2.2.10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "canvas",
+      "core-js",
+      "esbuild",
+      "vue-demi"
+    ],
+    "overrides": {
+      "@pdfme/common": "5.3.19",
+      "@pdfme/converter": "5.3.19"
+    }
   }
 }

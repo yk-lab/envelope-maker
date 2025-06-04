@@ -20,23 +20,23 @@ export type SenderForm = {
 
 export const defaultDest = (): DestForm => {
   return {
-    destZipcode: "",
-    destAddress1: "",
-    destAddress2: "",
-    destAffiliation1: "",
-    destAffiliation2: "",
-    destPosition: "",
-    destName: "",
-    destHonorific: "様",
+    destZipcode: '',
+    destAddress1: '',
+    destAddress2: '',
+    destAffiliation1: '',
+    destAffiliation2: '',
+    destPosition: '',
+    destName: '',
+    destHonorific: '様',
   };
 };
 export const defaultSender = (): SenderForm => {
   return {
-    senderZipcode: "",
-    senderAddress1: "",
-    senderAddress2: "",
-    senderAffiliation1: "",
-    senderAffiliation2: "",
-    senderName: "",
+    senderZipcode: '',
+    senderAddress1: '',
+    senderAddress2: '',
+    senderAffiliation1: '',
+    senderAffiliation2: '',
+    senderName: '',
   };
 };
