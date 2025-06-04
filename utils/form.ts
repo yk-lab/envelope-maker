@@ -7,9 +7,10 @@ export const convertFormToTemplateInput = (form: DestForm & SenderForm) => {
   } = { ...form };
 
   const destZipcode = data.destZipcode?.replace('-', '') ?? '';
-  data.destName += ` ${data.destHonorific ?? ''}`;
-  delete data.destZipcode;
-  delete data.destHonorific;
+  const honorific = data.destHonorific?.trim();
+  data.destName += honorific ? ` ${honorific}` : '';
+  data.destZipcode = undefined;
+  data.destHonorific = undefined;
 
   const destZipcode1 = (destZipcode.length > 0) ? destZipcode.substring(0, Math.min(3, destZipcode.length)) : '';
   const destZipcode2 = (destZipcode.length > 3) ? destZipcode.substring(3, Math.min(7, destZipcode.length)) : '';

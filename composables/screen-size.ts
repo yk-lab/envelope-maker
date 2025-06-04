@@ -4,7 +4,9 @@ export function useScreenSize(breakpoint: number = 640) {
 
   // ウィンドウサイズを更新
   const updateWindowSize = () => {
-    innerWidth.value = window.innerWidth;
+    if (import.meta.client) {
+      innerWidth.value = window.innerWidth;
+    }
   };
 
   onMounted(() => {
