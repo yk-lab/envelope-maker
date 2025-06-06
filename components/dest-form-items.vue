@@ -53,9 +53,9 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
     label="お名前"
     placeholder="お届け先のお名前を入力してください"
   />
-  <fieldset aria-label="Choose a memory option">
+  <fieldset aria-label="敬称を選択">
     <div class="flex items-center justify-between">
-      <div class="text-sm/6 font-medium text-gray-900">
+      <div class="text-sm/6 font-medium text-highlighted">
         敬称
       </div>
     </div>
@@ -71,7 +71,7 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
         as="template"
         :value="option.value"
       >
-        <div :class="['cursor-pointer focus:outline-hidden', active ? 'ring-2 ring-sky-500 ring-offset-2' : '', checked ? 'bg-sky-500 text-white ring-0 hover:bg-sky-400' : 'bg-white text-gray-900 ring-1 ring-gray-300 hover:bg-gray-50', !active && !checked ? 'ring-inset' : '', active && checked ? 'ring-2' : '', 'flex items-center justify-center rounded-md px-3 py-3 text-sm uppercase sm:flex-1']">
+        <div :class="['cursor-pointer focus:outline-hidden', active ? 'ring-2 ring-sky-500 ring-offset-2' : '', checked ? 'bg-sky-500 text-white ring-0 hover:bg-sky-400' : 'bg-white text-highlighted ring-1 ring-gray-300 hover:bg-gray-50', !active && !checked ? 'ring-inset' : '', active && checked ? 'ring-2' : '', 'flex items-center justify-center rounded-md px-3 py-3 text-sm uppercase sm:flex-1']">
           {{ option.name }}
         </div>
       </RadioGroupOption>

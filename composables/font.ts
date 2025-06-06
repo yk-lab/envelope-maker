@@ -32,5 +32,5 @@ export const useFont = () => {
     return loadedNotoFont.value;
   };
 
-  return { notoFont };
+  return { notoFont, isFetching: readonly(isFetching) };
 };
