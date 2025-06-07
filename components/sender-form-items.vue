@@ -1,10 +1,68 @@
 <script lang="ts" setup>
+import type { AddressEntry } from '~/composables/address-book';
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
+const ADDRESS_BOOK_TYPE = 'sender';
+
 const model = defineModel<DestForm & SenderForm>({ required: true });
+
+// 住所録機能
+const showAddressBookSelector = ref(false);
+const showAddressBookRegister = ref(false);
+const editingEntry = ref<AddressEntry | null>(null);
+
+// 住所録から選択された時の処理
+const onAddressSelect = (entry: AddressEntry) => {
+  const data = entry.data;
+  if ('senderZipcode' in data) {
+    Object.assign(model.value, data);
+  }
+};
+
+// 住所録編集
+const onAddressEdit = (entry: AddressEntry) => {
+  editingEntry.value = entry;
+  showAddressBookRegister.value = true;
+  showAddressBookSelector.value = false;
+};
+
+// 現在の入力内容を取得
+const getCurrentSenderData = () => {
+  return {
+    senderZipcode: model.value.senderZipcode,
+    senderAddress1: model.value.senderAddress1,
+    senderAddress2: model.value.senderAddress2,
+    senderAffiliation1: model.value.senderAffiliation1,
+    senderAffiliation2: model.value.senderAffiliation2,
+    senderName: model.value.senderName,
+  };
+};
 </script>
 
 <template>
+  <!-- 住所録ボタン -->
+  <div class="flex flex-wrap justify-end gap-2 mb-4">
+    <UButton
+      icon="i-mdi-book-open-page-variant"
+      size="sm"
+      color="primary"
+      variant="outline"
+      @click="showAddressBookSelector = true"
+    >
+      住所録から選択
+    </UButton>
+    <UButton
+      icon="i-mdi-bookmark-plus"
+      size="sm"
+      color="warning"
+      variant="outline"
+      @click="showAddressBookRegister = true"
+    >
+      現在の内容を住所録に登録
+    </UButton>
+  </div>
+
+  <!-- 差出人情報入力フィールド -->
   <AddressFormField
     v-model="model.senderZipcode"
     label="郵便番号"
@@ -39,5 +97,22 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
     v-model="model.senderName"
     label="お名前"
     placeholder="差出人のお名前を入力してください"
+  />
+
+  <!-- 住所録選択モーダル -->
+  <LazyAddressBookSelector
+    v-model="showAddressBookSelector"
+    :type="ADDRESS_BOOK_TYPE"
+    @select="onAddressSelect"
+    @edit="onAddressEdit"
+  />
+
+  <!-- 住所録登録モーダル -->
+  <LazyAddressBookRegister
+    v-model="showAddressBookRegister"
+    :type="ADDRESS_BOOK_TYPE"
+    :data="getCurrentSenderData()"
+    :edit-entry="editingEntry"
+    @registered="editingEntry = null"
   />
 </template>

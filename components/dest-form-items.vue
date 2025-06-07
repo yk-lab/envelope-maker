@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue';
+import type { AddressEntry } from '~/composables/address-book';
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
 const HONORIFIC_OPTIONS = [
@@ -9,10 +10,69 @@ const HONORIFIC_OPTIONS = [
   { name: '行', value: '行' },
 ] as const;
 
+const ADDRESS_BOOK_TYPE = 'destination';
+
 const model = defineModel<DestForm & SenderForm>({ required: true });
+
+// 住所録機能
+const showAddressBookSelector = ref(false);
+const showAddressBookRegister = ref(false);
+const editingEntry = ref<AddressEntry | null>(null);
+
+// 住所録から選択された時の処理
+const onAddressSelect = (entry: AddressEntry) => {
+  const data = entry.data;
+  if ('destZipcode' in data) {
+    Object.assign(model.value, data);
+  }
+};
+
+// 住所録編集
+const onAddressEdit = (entry: AddressEntry) => {
+  editingEntry.value = entry;
+  showAddressBookRegister.value = true;
+  showAddressBookSelector.value = false;
+};
+
+// 現在の入力内容を取得
+const getCurrentDestData = () => {
+  return {
+    destZipcode: model.value.destZipcode,
+    destAddress1: model.value.destAddress1,
+    destAddress2: model.value.destAddress2,
+    destAffiliation1: model.value.destAffiliation1,
+    destAffiliation2: model.value.destAffiliation2,
+    destPosition: model.value.destPosition,
+    destName: model.value.destName,
+    destHonorific: model.value.destHonorific,
+  };
+};
 </script>
 
 <template>
+  <!-- 住所録ボタン -->
+  <div class="flex flex-wrap gap-2 justify-end mb-4">
+    <UButton
+      icon="i-mdi-book-open-page-variant"
+      size="sm"
+      color="primary"
+      variant="outline"
+      @click="showAddressBookSelector = true"
+    >
+      住所録から選択
+    </UButton>
+    <UButton
+      icon="i-mdi-bookmark-plus"
+      size="sm"
+      color="warning"
+      variant="outline"
+      @click="showAddressBookRegister = true"
+    >
+      現在の内容を住所録に登録
+    </UButton>
+  </div>
+
+  <!-- 宛先情報入力フィールド -->
   <AddressFormField
     v-model="model.destZipcode"
     label="郵便番号"
@@ -77,4 +137,21 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
       </RadioGroupOption>
     </RadioGroup>
   </fieldset>
+
+  <!-- 住所録選択モーダル -->
+  <LazyAddressBookSelector
+    v-model="showAddressBookSelector"
+    :type="ADDRESS_BOOK_TYPE"
+    @select="onAddressSelect"
+    @edit="onAddressEdit"
+  />
+
+  <!-- 住所録登録モーダル -->
+  <LazyAddressBookRegister
+    v-model="showAddressBookRegister"
+    :type="ADDRESS_BOOK_TYPE"
+    :data="getCurrentDestData()"
+    :edit-entry="editingEntry"
+    @registered="editingEntry = null"
+  />
 </template>
