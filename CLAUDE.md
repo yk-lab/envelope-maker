@@ -41,6 +41,9 @@ pnpm generate
 
 # Preview production build
 pnpm preview
+
+# Remove Prettier (project only uses ESLint)
+pnpm lintfix
 ```
 
 ## Architecture
@@ -61,15 +64,17 @@ pnpm preview
 - **Font Loading**: Custom composable (`composables/font.ts`) loads local Noto Sans JP fonts with Google Fonts fallback
 - **PDF Template**: Pre-made base PDF (`/public/template_pdf/envelope-v.pdf`) with text overlay positions
 - **Responsive Breakpoint**: 640px for compact mode detection
+- **Share URL Feature**: Generates URLs with form data as query parameters (`components/share-url.vue`, `composables/query-params.ts`)
 
 ### Important Implementation Details
 
 - **Browser-only**: SSR is disabled (`ssr: false` in nuxt.config.ts)
 - **Font Strategy**: Prioritizes local font files to reduce network requests
-- **PDF Schema**: Array-based schema format (pdfme v5 structure)
+- **PDF Schema**: Array-based schema format (pdfme v5 structure) with dynamic positioning
 - **Form Types**: TypeScript interfaces in `scripts/forms/schema.ts`
 - **Responsive**: Desktop shows side-by-side preview, mobile stacks vertically
 - **Lazy Loading**: Components use `lazy` prefix for performance optimization
+- **URL State**: Form values can be shared via query parameters, loaded on page mount
 
 ## Code Style Guidelines
 
@@ -108,8 +113,10 @@ All @pdfme packages must be kept at the same version. The project uses pnpm over
 ## Before Making Changes
 
 1. Run `pnpm lint:js` to check for linting errors
-2. Test PDF generation with various Japanese address formats
-3. Verify the app works without network requests (privacy requirement)
-4. Ensure changes maintain responsive design for both desktop and mobile
-5. Check browser console for any new errors beyond the known CMap warnings
-6. Follow the code style guidelines (English variables, Japanese comments)
+2. Run `pnpm typecheck` to ensure type safety
+3. Test PDF generation with various Japanese address formats
+4. Verify the app works without network requests (privacy requirement)
+5. Ensure changes maintain responsive design for both desktop and mobile
+6. Check browser console for any new errors beyond the known CMap warnings
+7. Follow the code style guidelines (English variables, Japanese comments)
+8. Test share URL functionality with different form field combinations
