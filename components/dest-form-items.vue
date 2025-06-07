@@ -19,10 +19,15 @@ const showAddressBookSelector = ref(false);
 const showAddressBookRegister = ref(false);
 const editingEntry = ref<AddressEntry | null>(null);
 
+// 宛先フォームデータかどうかを判定する型ガード関数
+const isDestFormData = (data: Partial<DestForm> | Partial<SenderForm>): data is Partial<DestForm> => {
+  return 'destZipcode' in data || 'destAddress1' in data || 'destName' in data;
+};
+
 // 住所録から選択された時の処理
 const onAddressSelect = (entry: AddressEntry) => {
   const data = entry.data;
-  if ('destZipcode' in data) {
+  if (isDestFormData(data)) {
     Object.assign(model.value, data);
   }
 };

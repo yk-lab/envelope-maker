@@ -11,10 +11,21 @@ const showAddressBookSelector = ref(false);
 const showAddressBookRegister = ref(false);
 const editingEntry = ref<AddressEntry | null>(null);
 
+// SenderFormデータかどうかを検証するタイプガード
+const isSenderFormData = (data: Partial<DestForm> | Partial<SenderForm>): data is Partial<SenderForm> => {
+  return 'senderZipcode' in data
+    && typeof data.senderZipcode === 'string'
+    && (!('senderAddress1' in data) || typeof data.senderAddress1 === 'string')
+    && (!('senderAddress2' in data) || typeof data.senderAddress2 === 'string')
+    && (!('senderAffiliation1' in data) || typeof data.senderAffiliation1 === 'string')
+    && (!('senderAffiliation2' in data) || typeof data.senderAffiliation2 === 'string')
+    && (!('senderName' in data) || typeof data.senderName === 'string');
+};
+
 // 住所録から選択された時の処理
 const onAddressSelect = (entry: AddressEntry) => {
   const data = entry.data;
-  if ('senderZipcode' in data) {
+  if (isSenderFormData(data)) {
     Object.assign(model.value, data);
   }
 };

@@ -39,7 +39,7 @@ export const useAddressBook = () => {
   /**
    * 住所録エントリーを更新
    */
-  const updateEntry = (id: string, updates: Partial<AddressEntry>) => {
+  const updateEntry = (id: string, updates: Partial<AddressEntry>): AddressEntry | null => {
     const index = addressBook.value.findIndex(entry => entry.id === id);
     if (index !== -1) {
       addressBook.value[index] = {
@@ -49,6 +49,7 @@ export const useAddressBook = () => {
       };
       return addressBook.value[index];
     }
+    return null;
   };
 
   /**

@@ -193,11 +193,23 @@ const onSubmit = async (event: FormSubmitEvent<FormState>) => {
     }
     else {
       // 新規登録
-      entry = addEntry(
-        event.data.name.trim(),
-        props.type,
-        props.data,
-      );
+      try {
+        entry = addEntry(
+          event.data.name.trim(),
+          props.type,
+          props.data,
+        );
+      }
+      catch (error) {
+        console.error('住所録の登録中にエラーが発生しました:', error);
+        toast.add({
+          title: '登録に失敗しました',
+          description: '住所録の登録中にエラーが発生しました。もう一度お試しください。',
+          icon: 'i-mdi-alert',
+          color: 'error',
+        });
+        return;
+      }
     }
 
     emit('registered', entry);

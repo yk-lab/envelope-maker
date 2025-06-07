@@ -21,13 +21,13 @@
 
 ## 未実装の機能提案
 
-## 住所録のCSV出力・インポート機能
+### 住所録のCSV出力・インポート機能
 
-### 概要
+##### 概要
 
 住所録データをCSV形式でエクスポート・インポートできる機能。バックアップや他システムとの連携が可能に。
 
-### 機能詳細
+##### 機能詳細
 
 - 住所録全体または選択したエントリーをCSV出力
 - CSVファイルから住所録への一括インポート
@@ -35,7 +35,7 @@
 - インポートプレビュー機能
 - エラーレポート表示
 
-### CSVフォーマット例
+#### CSVフォーマット例
 
 ```csv
 登録名,タイプ,郵便番号,住所1,住所2,所属1,所属2,役職,氏名,敬称,最終使用日
@@ -43,26 +43,26 @@
 会社,destination,234-5678,大阪府大阪市,北区1-2-3,株式会社サンプル,営業部,部長,田中花子,様,2024-01-20T14:00:00Z
 ```
 
-### UI設計
+#### UI設計
 
 - 住所録モーダルに「CSVエクスポート」「CSVインポート」ボタンを追加
 - インポート時はドラッグ&ドロップまたはファイル選択
 - プレビューダイアログで確認後にインポート実行
 
-## 住所検索機能（API連携）
+### 住所検索機能（API連携）
 
-### 概要
+#### 概要
 
 Google Places API等の外部APIを使用して、施設名や会社名から住所を検索・自動入力する機能
 
-### 機能詳細
+#### 機能詳細
 
 - 施設名・会社名・店舗名からの住所検索
 - 郵便番号からの住所自動補完
 - 検索履歴のキャッシュ（API呼び出し削減）
 - オフライン時は住所録から検索にフォールバック
 
-### 実装案
+#### 実装案
 
 ```typescript
 // composables/address-search.ts
@@ -74,42 +74,141 @@ interface SearchResult {
   source: 'google' | 'postalcode' | 'cache';
 }
 
-const useAddressSearch = () => {
-  // Google Places Autocomplete API
-  const searchByName = async (query: string): Promise<SearchResult[]> => {
-    // APIキーはサーバー側で管理（プロキシ経由）
-  };
-  
-  // 郵便番号API（日本郵便提供）
-  const searchByZipcode = async (zipcode: string): Promise<SearchResult> => {
-    // https://zipcloud.ibsnet.co.jp/api/search
-  };
+interface AddressSearchReturn {
+  searchByName: (query: string) => Promise<SearchResult[]>;
+  searchByZipcode: (zipcode: string) => Promise<SearchResult | null>;
+  searchCache: (query: string) => SearchResult[];
+  clearCache: () => void;
 }
+
+export const useAddressSearch = (): AddressSearchReturn => {
+  const searchCache = useState<Map<string, SearchResult[]>>('addressSearchCache', () => new Map());
+  const abortController = ref<AbortController | null>(null);
+
+  // キャッシュ検索
+  const searchCacheData = (query: string): SearchResult[] => {
+    const cached = searchCache.value.get(query.toLowerCase());
+    return cached || [];
+  };
+
+  // Google Places API検索（エラー時はキャッシュフォールバック）
+  const searchByName = async (query: string): Promise<SearchResult[]> => {
+    try {
+      // 既存のリクエストをキャンセル
+      if (abortController.value) {
+        abortController.value.abort();
+      }
+      abortController.value = new AbortController();
+
+      const response = await $fetch('/api/places/search', {
+        query: { q: query },
+        signal: abortController.value.signal
+      });
+
+      const results = response.results.map(place => ({
+        name: place.displayName,
+        address: place.formattedAddress,
+        placeId: place.id,
+        source: 'google' as const
+      }));
+
+      // キャッシュに保存
+      searchCache.value.set(query.toLowerCase(), results);
+      return results;
+    } catch (error) {
+      console.error('Places API error:', error);
+      // エラー時はキャッシュから検索
+      return searchCacheData(query);
+    }
+  };
+
+  // 郵便番号検索（エラー時は null を返す）
+  const searchByZipcode = async (zipcode: string): Promise<SearchResult | null> => {
+    try {
+      const response = await $fetch('https://zipcloud.ibsnet.co.jp/api/search', {
+        query: { zipcode }
+      });
+
+      if (response.results) {
+        const result = response.results[0];
+        return {
+          name: '',
+          address: `${result.address1}${result.address2}${result.address3}`,
+          zipcode: result.zipcode,
+          source: 'postalcode'
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Zipcode API error:', error);
+      return null;
+    }
+  };
+
+  // キャッシュクリア
+  const clearCache = () => {
+    searchCache.value.clear();
+  };
+
+  // クリーンアップ
+  onUnmounted(() => {
+    if (abortController.value) {
+      abortController.value.abort();
+    }
+  });
+
+  return {
+    searchByName,
+    searchByZipcode,
+    searchCache: searchCacheData,
+    clearCache
+  };
+};
 ```
 
-### セキュリティ考慮事項
+```typescript
+// server/api/places/search.ts
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const { q } = query
+  
+  // Google Places API呼び出し
+  const response = await $fetch(`https://places.googleapis.com/v1/places:searchText`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.GOOGLE_PLACES_API_KEY}`,
+      'X-Goog-FieldMask': 'places.displayName,places.formattedAddress'
+    },
+    body: { textQuery: q }
+  })
+  
+  return response
+})
+```
+
+#### セキュリティ考慮事項
 
 - APIキーはサーバー側で管理（直接ブラウザに露出させない）
 - プロキシサーバー経由でのAPI呼び出し
 - レート制限の実装
 - CORS対応
 
-### UI設計
+#### UI設計
 
 - 検索フィールドにオートコンプリート機能
 - 「施設名から検索」ボタン
 - 検索結果の候補リスト表示
 - 選択後、フォームに自動入力
 
-### プライバシーオプション
+#### プライバシーオプション
 
 - API検索機能のON/OFF設定
 - 「完全オフラインモード」の提供
 - 検索履歴を保存しないオプション
 
-### 推定利用料金
+#### 推定利用料金
 
-#### Google Places API
+##### Google Places API
 
 - **Autocomplete - Per Request**: $0.00283/リクエスト（約0.42円）
 - **Place Details - Per Request**: $0.017/リクエスト（約2.55円）
@@ -119,7 +218,7 @@ const useAddressSearch = () => {
   - 大量利用（10,000件/月）: 約30,000円
 - **無料枠**: $200/月（約30,000円）のクレジットあり
 
-#### 郵便番号検索API
+##### 郵便番号検索API
 
 - **zipcloud API**: 無料（商用利用可）
 - **日本郵便 Web API**:
@@ -128,26 +227,26 @@ const useAddressSearch = () => {
   - 固定IP費用: 月額1,000円〜5,000円程度（プロバイダによる）
   - 商用利用の場合は別途申請が必要
 
-#### コスト最適化案
+##### コスト最適化案
 
 - キャッシュ実装により同一検索の重複リクエストを削減
 - 郵便番号検索を優先し、詳細住所のみGoogle APIを利用
 - ユーザーごとの月間API利用上限設定
 
-## QRコード機能
+### QRコード機能
 
-### 概要
+#### 概要
 
 共有URLをQRコード化して印刷物に追加できる機能
 
-### 機能詳細
+#### 機能詳細
 
 - 共有URLを自動的にQRコード化
 - 封筒の余白部分にQRコードを配置（オプション）
 - QRコードサイズ調整可能
 - 「返信用QRコード」として相手が読み取って返信封筒を作成可能
 
-### 実装案
+#### 実装案
 
 ```typescript
 // 必要なライブラリ
@@ -161,46 +260,46 @@ const useQRCode = () => {
 }
 ```
 
-### 利用シーン
+#### 利用シーン
 
 - 返信が必要な封筒に印刷
 - 住所変更の通知（新住所のQRコード）
 - イベント招待状（会場情報付き）
 
-### マーケティング効果
+#### マーケティング効果
 
-#### ネットワーク効果
+##### ネットワーク効果
 
 - **受信者のサービス認知**: QRコードを通じて初めて封筒ツクールを知る
 - **バイラル拡散**: 便利さを体験した受信者が自分でも利用開始
 - **利用者の指数関数的増加**: 各ユーザーが複数の新規ユーザーを獲得
 
-#### ブランディング効果
+##### ブランディング効果
 
 - **サービス名の自然な露出**: 「封筒ツクールで作成」等の文言をQRコード近くに配置
 - **信頼性の向上**: デジタル化された封筒作成による先進的なイメージ
 - **差別化要因**: 他の封筒作成サービスにない独自機能
 
-#### 利用促進効果
+##### 利用促進効果
 
 - **返信率の向上**: QRコードで簡単に返信封筒が作成できることで返信のハードルが下がる
 - **継続利用の促進**: 一度体験すると手書きに戻れない利便性
 - **口コミ効果**: 「QRコードで住所入力が楽だった」という体験の共有
 
-#### 測定可能な指標
+##### 測定可能な指標
 
 - QRコード読み取り数のトラッキング
 - QRコード経由の新規ユーザー獲得率
 - 返信封筒作成率
 - リテンション率（QRコード経由ユーザー vs 通常ユーザー）
 
-## 封筒一括作成（CSVインポート）機能
+### 封筒一括作成（CSVインポート）機能
 
-### 概要
+#### 概要
 
 複数の宛先をCSVファイルから一括インポートして、連続してPDFを生成する機能
 
-### 機能詳細
+#### 機能詳細
 
 - CSVファイルのドラッグ&ドロップまたはファイル選択
 - CSVフォーマットのテンプレートダウンロード機能
@@ -208,14 +307,14 @@ const useQRCode = () => {
 - 一括PDF生成（個別ファイルまたは結合）
 - エラーレポート（不正なデータの表示）
 
-### CSVフォーマット例
+#### CSVフォーマット例
 
 ```csv
 郵便番号,住所1,住所2,所属1,所属2,役職,氏名,敬称
 123-4567,東京都千代田区,千代田1-2-3,株式会社サンプル,営業部,部長,山田太郎,様
 ```
 
-### 実装案
+#### 実装案
 
 ```typescript
 // utils/csv-parser.ts
@@ -231,19 +330,19 @@ const parseCSV = (file: File): Promise<CSVRow[]> => {
 };
 ```
 
-### バリデーション
+#### バリデーション
 
 - 郵便番号フォーマットチェック
 - 必須項目の確認
 - 文字数制限チェック
 
-## キーボードショートカット
+### キーボードショートカット
 
-### 概要
+#### 概要
 
 作業効率を向上させるキーボードショートカット機能
 
-### ショートカット一覧
+#### ショートカット一覧
 
 | ショートカット | 動作 |
 |--------------|------|
@@ -256,21 +355,102 @@ const parseCSV = (file: File): Promise<CSVRow[]> => {
 | Ctrl/Cmd + Z | 最後の入力を元に戻す |
 | ? | ショートカット一覧を表示 |
 
-### 実装案
+#### 実装案
 
 ```typescript
 // composables/keyboard-shortcuts.ts
-const useKeyboardShortcuts = () => {
-  const registerShortcuts = () => {
-    useEventListener('keydown', (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        generatePDF();
+import type { ShortcutsConfig } from '#ui/types'
+
+export const useKeyboardShortcuts = () => {
+  const { generateAndOpenPdf } = usePdfGenerator()
+  const showAddressBookModal = ref(false)
+  const showShortcutHelp = ref(false)
+  
+  // Nuxt UI の defineShortcuts を使用
+  defineShortcuts({
+    'cmd_p': {
+      usingInput: false,  // 入力フィールドでは無効
+      handler: () => {
+        // PDF生成処理
+        generateAndOpenPdf(form.value, schema.value)
       }
-      // 他のショートカット
-    });
-  };
+    },
+    'cmd_s': {
+      usingInput: false,
+      handler: () => {
+        // 住所録に登録
+        showAddressBookRegisterModal.value = true
+      }
+    },
+    'cmd_n': {
+      usingInput: false,
+      handler: () => {
+        // フォームをクリア
+        if (confirm('フォームをクリアしますか？')) {
+          resetForm()
+        }
+      }
+    },
+    'cmd_l': {
+      usingInput: false,
+      handler: () => {
+        // 住所録一覧を開く
+        showAddressBookModal.value = true
+      }
+    },
+    '?': {
+      usingInput: false,
+      handler: () => {
+        // ショートカット一覧を表示
+        showShortcutHelp.value = true
+      }
+    }
+  } as ShortcutsConfig)
+
+  return {
+    showAddressBookModal,
+    showShortcutHelp
+  }
 }
+
+// pages/index.vue での使用例
+const { showAddressBookModal, showShortcutHelp } = useKeyboardShortcuts()
+```
+
+#### Nuxt UI defineShortcuts の利点
+
+- **自動クリーンアップ**: Vueのライフサイクルに統合され、メモリリークの心配なし
+- **入力フィールド制御**: `usingInput` オプションで簡単に制御
+- **OS対応**: `cmd` は自動的にmacOSでは `⌘`、WindowsやLinuxでは `Ctrl` にマッピング
+- **型安全**: TypeScriptの型定義が組み込み済み
+- **シンプルな実装**: イベントリスナーの管理が不要
+
+#### ヘルプモーダルの実装例
+
+```vue
+<!-- components/shortcut-help.vue -->
+<template>
+  <UModal v-model="isOpen" title="キーボードショートカット">
+    <div class="space-y-2">
+      <div v-for="shortcut in shortcuts" :key="shortcut.key" class="flex justify-between">
+        <UKbd>{{ shortcut.key }}</UKbd>
+        <span class="text-sm text-gray-500">{{ shortcut.description }}</span>
+      </div>
+    </div>
+  </UModal>
+</template>
+
+<script setup lang="ts">
+const isOpen = defineModel<boolean>({ required: true })
+
+const shortcuts = [
+  { key: '⌘ P', description: 'PDF生成・印刷' },
+  { key: '⌘ S', description: '現在の入力内容を住所録に登録' },
+  { key: '⌘ N', description: 'フォームをクリア（新規作成）' },
+  { key: '⌘ L', description: '住所録一覧を開く' },
+  { key: '?', description: 'ショートカット一覧を表示' }
+]
+</script>
 ```
 
 ### UI表示
@@ -278,13 +458,13 @@ const useKeyboardShortcuts = () => {
 - 画面右下に「?」アイコンでヘルプ表示
 - ボタンホバー時にショートカットをツールチップで表示
 
-## 履歴機能
+### 履歴機能
 
-### 概要
+#### 概要
 
 最近作成した封筒の履歴を表示し、簡単に再利用できる機能
 
-### 機能詳細
+#### 機能詳細
 
 - 最新20件の作成履歴を保存（LocalStorage）
 - サムネイル付き履歴一覧
@@ -292,7 +472,7 @@ const useKeyboardShortcuts = () => {
 - 履歴の削除（個別/全削除）
 - 作成日時の表示
 
-### 実装案
+#### 実装案
 
 ```typescript
 // composables/history.ts
@@ -313,7 +493,7 @@ const useHistory = () => {
 }
 ```
 
-### UI設計
+#### UI設計
 
 - ヘッダーに「履歴」ボタンを配置
 - スライドパネルで履歴一覧を表示
@@ -323,7 +503,7 @@ const useHistory = () => {
   - 「この内容で作成」ボタン
   - 削除ボタン
 
-### プライバシー配慮
+#### プライバシー配慮
 
 - 履歴機能のON/OFF設定
 - 「シークレットモード」（履歴を残さない）
