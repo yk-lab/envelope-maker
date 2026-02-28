@@ -134,7 +134,6 @@
 
 <script setup lang="ts">
 import type { AddressEntry } from '~/composables/address-book';
-import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
 interface Props {
   type: 'destination' | 'sender';
@@ -143,7 +142,6 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits<{
   select: [entry: AddressEntry];
-  edit: [entry: AddressEntry];
 }>();
 
 const { getSortedEntries, searchEntries, deleteEntry, updateLastUsedAt } = useAddressBook();
@@ -151,7 +149,8 @@ const { confirm } = useConfirmDialog();
 
 const isOpen = defineModel<boolean>({ required: true });
 
-const searchQuery = ref();
+const toast = useToast();
+const searchQuery = ref('');
 const sortBy = ref('lastUsed' as 'lastUsed' | 'name' | 'date');
 const editingEntry = ref<AddressEntry | null>(null);
 
@@ -161,30 +160,10 @@ const sortOptions = [
   { label: '更新日順', value: 'date' },
 ] as { label: string; value: 'lastUsed' | 'name' | 'date' }[];
 
-// 型安全なアクセサー関数
-const getZipcode = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destZipcode' in data ? data.destZipcode : null) || ('senderZipcode' in data ? data.senderZipcode : null);
-};
-
-const getAddress1 = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destAddress1' in data ? data.destAddress1 : null) || ('senderAddress1' in data ? data.senderAddress1 : null);
-};
-
-const getAddress2 = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destAddress2' in data ? data.destAddress2 : null) || ('senderAddress2' in data ? data.senderAddress2 : null);
-};
-
-const getName = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destName' in data ? data.destName : null) || ('senderName' in data ? data.senderName : null);
-};
-
-const getHonorific = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destHonorific' in data ? data.destHonorific : null) || '';
-};
-
 const getLastUsedLabel = (lastUsedAt: string) => {
   const now = new Date();
   const lastUsed = new Date(lastUsedAt);
+  if (isNaN(lastUsed.getTime())) return '';
   const diffInDays = Math.floor((now.getTime() - lastUsed.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffInDays === 0) return '今日使用';
@@ -212,7 +191,13 @@ const showAddressBookRegister = computed({
 });
 
 const selectEntry = (entry: AddressEntry) => {
-  updateLastUsedAt(entry.id);
+  try {
+    updateLastUsedAt(entry.id);
+  }
+  catch (error) {
+    // 最終使用日の更新失敗は致命的でないため、選択処理は続行する
+    console.error('最終使用日の更新に失敗しました:', error);
+  }
   emit('select', entry);
   isOpen.value = false;
 };
@@ -225,7 +210,17 @@ const confirmDelete = async (entry: AddressEntry) => {
     confirmColor: 'error',
   });
   if (confirmed) {
-    deleteEntry(entry.id);
+    try {
+      deleteEntry(entry.id);
+    }
+    catch (error) {
+      toast.add({
+        title: '削除に失敗しました',
+        description: error instanceof Error ? error.message : '住所録の削除中にエラーが発生しました。',
+        icon: 'i-mdi-alert',
+        color: 'error',
+      });
+    }
   }
 };
 </script>

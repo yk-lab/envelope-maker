@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue';
-import type { AddressEntry } from '~/composables/address-book';
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
 const HONORIFIC_OPTIONS = [
@@ -14,29 +13,26 @@ const ADDRESS_BOOK_TYPE = 'destination';
 
 const model = defineModel<DestForm & SenderForm>({ required: true });
 
-// 住所録機能
 const showAddressBookSelector = ref(false);
 const showAddressBookRegister = ref(false);
-const editingEntry = ref<AddressEntry | null>(null);
 
-// 宛先フォームデータかどうかを判定する型ガード関数
+// 宛先フォームデータかどうかを検証する型ガード
 const isDestFormData = (data: Partial<DestForm> | Partial<SenderForm>): data is Partial<DestForm> => {
-  return 'destZipcode' in data || 'destAddress1' in data || 'destName' in data;
+  return 'destZipcode' in data
+    && typeof data.destZipcode === 'string'
+    && (!('destAddress1' in data) || typeof data.destAddress1 === 'string')
+    && (!('destAddress2' in data) || typeof data.destAddress2 === 'string')
+    && (!('destName' in data) || typeof data.destName === 'string');
 };
 
 // 住所録から選択された時の処理
 const onAddressSelect = (entry: AddressEntry) => {
   const data = entry.data;
-  if (isDestFormData(data)) {
-    Object.assign(model.value, data);
+  if (!isDestFormData(data)) {
+    console.warn('宛先フォームに適用できないデータ形式です:', entry.id);
+    return;
   }
-};
-
-// 住所録編集
-const onAddressEdit = (entry: AddressEntry) => {
-  editingEntry.value = entry;
-  showAddressBookRegister.value = true;
-  showAddressBookSelector.value = false;
+  Object.assign(model.value, data);
 };
 
 // 現在の入力内容を取得
@@ -148,7 +144,6 @@ const getCurrentDestData = () => {
     v-model="showAddressBookSelector"
     :type="ADDRESS_BOOK_TYPE"
     @select="onAddressSelect"
-    @edit="onAddressEdit"
   />
 
   <!-- 住所録登録モーダル -->
@@ -156,7 +151,5 @@ const getCurrentDestData = () => {
     v-model="showAddressBookRegister"
     :type="ADDRESS_BOOK_TYPE"
     :data="getCurrentDestData()"
-    :edit-entry="editingEntry"
-    @registered="editingEntry = null"
   />
 </template>

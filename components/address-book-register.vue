@@ -113,35 +113,6 @@ const formState = reactive<FormState>({
   name: '',
 });
 
-// 型安全なアクセサー関数
-const getZipcode = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destZipcode' in data ? data.destZipcode : null) || ('senderZipcode' in data ? data.senderZipcode : null);
-};
-
-const getAddress1 = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destAddress1' in data ? data.destAddress1 : null) || ('senderAddress1' in data ? data.senderAddress1 : null);
-};
-
-const getAddress2 = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destAddress2' in data ? data.destAddress2 : null) || ('senderAddress2' in data ? data.senderAddress2 : null);
-};
-
-const getAffiliation1 = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destAffiliation1' in data ? data.destAffiliation1 : null) || ('senderAffiliation1' in data ? data.senderAffiliation1 : null);
-};
-
-const getAffiliation2 = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destAffiliation2' in data ? data.destAffiliation2 : null) || ('senderAffiliation2' in data ? data.senderAffiliation2 : null);
-};
-
-const getName = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destName' in data ? data.destName : null) || ('senderName' in data ? data.senderName : null);
-};
-
-const getHonorific = (data: Partial<DestForm> | Partial<SenderForm>) => {
-  return ('destHonorific' in data ? data.destHonorific : null) || '';
-};
-
 // 編集モード時の初期値設定
 watch(() => props.editEntry, (entry) => {
   if (entry) {
@@ -149,7 +120,7 @@ watch(() => props.editEntry, (entry) => {
   }
 }, { immediate: true });
 
-// モーダルが閉じたときにフォームをリセット
+// モーダルが閉じたときにフォームをリセット（編集モード以外）
 watch(isOpen, (value) => {
   if (!value && !isEdit.value) {
     formState.name = '';
@@ -221,6 +192,15 @@ const onSubmit = async (event: FormSubmitEvent<FormState>) => {
       description: `「${event.data.name}」を住所録に${isEdit.value ? '更新' : '登録'}しました`,
       icon: 'i-mdi-check-circle',
       color: 'success',
+    });
+  }
+  catch (error) {
+    console.error('住所録の操作中にエラーが発生しました:', error);
+    toast.add({
+      title: '操作に失敗しました',
+      description: error instanceof Error ? error.message : '住所録の操作中にエラーが発生しました。もう一度お試しください。',
+      icon: 'i-mdi-alert',
+      color: 'error',
     });
   }
   finally {

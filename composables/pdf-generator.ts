@@ -11,38 +11,38 @@ export function usePdfGenerator() {
     form: DestForm & SenderForm,
     schemas: Template['schemas'],
   ) => {
-    try {
-      const { generate } = await import('@pdfme/generator');
-      const [basePdf, fontData] = await Promise.all([
-        pdf.templatePdf(),
-        getFontsData(),
-      ]);
+    const { generate } = await import('@pdfme/generator');
+    const [basePdf, fontData] = await Promise.all([
+      pdf.templatePdf(),
+      getFontsData(),
+    ]);
 
-      const pdfBuffer = await generate({
-        template: {
-          basePdf,
-          schemas,
-        },
-        inputs: [convertFormToTemplateInput(form)],
-        plugins: { text },
-        options: {
-          font: fontData,
-          lang: 'ja',
-        },
-      });
+    const pdfBuffer = await generate({
+      template: {
+        basePdf,
+        schemas,
+      },
+      inputs: [convertFormToTemplateInput(form)],
+      plugins: { text },
+      options: {
+        font: fontData,
+        lang: 'ja',
+      },
+    });
 
-      // PDFをBlobとして作成し、新しいウィンドウで開く
-      const blob = new Blob([new Uint8Array(pdfBuffer.buffer)], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      window.open(url);
+    // PDFをBlobとして作成し、新しいウィンドウで開く
+    const blob = new Blob([new Uint8Array(pdfBuffer.buffer)], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const newWindow = window.open(url);
 
-      // メモリリークを防ぐためにURLを解放
-      setTimeout(() => URL.revokeObjectURL(url), 100);
+    if (!newWindow) {
+      // ポップアップブロック時はURLを解放してエラーを通知
+      URL.revokeObjectURL(url);
+      throw new Error('PDFを新しいウィンドウで開けませんでした。ポップアップブロッカーの設定をご確認ください。');
     }
-    catch (error) {
-      console.error('PDF generation failed:', error);
-      throw error;
-    }
+
+    // ウィンドウがPDFを読み込む十分な時間を確保してからURLを解放
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
   };
 
   return {

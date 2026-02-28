@@ -1,17 +1,14 @@
 <script lang="ts" setup>
-import type { AddressEntry } from '~/composables/address-book';
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
 const ADDRESS_BOOK_TYPE = 'sender';
 
 const model = defineModel<DestForm & SenderForm>({ required: true });
 
-// 住所録機能
 const showAddressBookSelector = ref(false);
 const showAddressBookRegister = ref(false);
-const editingEntry = ref<AddressEntry | null>(null);
 
-// SenderFormデータかどうかを検証するタイプガード
+// 差出人フォームデータかどうかを検証する型ガード
 const isSenderFormData = (data: Partial<DestForm> | Partial<SenderForm>): data is Partial<SenderForm> => {
   return 'senderZipcode' in data
     && typeof data.senderZipcode === 'string'
@@ -25,16 +22,11 @@ const isSenderFormData = (data: Partial<DestForm> | Partial<SenderForm>): data i
 // 住所録から選択された時の処理
 const onAddressSelect = (entry: AddressEntry) => {
   const data = entry.data;
-  if (isSenderFormData(data)) {
-    Object.assign(model.value, data);
+  if (!isSenderFormData(data)) {
+    console.warn('差出人フォームに適用できないデータ形式です:', entry.id);
+    return;
   }
-};
-
-// 住所録編集
-const onAddressEdit = (entry: AddressEntry) => {
-  editingEntry.value = entry;
-  showAddressBookRegister.value = true;
-  showAddressBookSelector.value = false;
+  Object.assign(model.value, data);
 };
 
 // 現在の入力内容を取得
@@ -115,7 +107,6 @@ const getCurrentSenderData = () => {
     v-model="showAddressBookSelector"
     :type="ADDRESS_BOOK_TYPE"
     @select="onAddressSelect"
-    @edit="onAddressEdit"
   />
 
   <!-- 住所録登録モーダル -->
@@ -123,7 +114,5 @@ const getCurrentSenderData = () => {
     v-model="showAddressBookRegister"
     :type="ADDRESS_BOOK_TYPE"
     :data="getCurrentSenderData()"
-    :edit-entry="editingEntry"
-    @registered="editingEntry = null"
   />
 </template>
