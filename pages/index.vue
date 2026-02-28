@@ -38,8 +38,21 @@ const schemas = computed(() => {
   return envelopeVSchema(schemaOptions);
 });
 
+const toast = useToast();
+
 const createPdf = async () => {
-  await generateAndOpenPdf(form.value, schemas.value);
+  try {
+    await generateAndOpenPdf(form.value, schemas.value);
+  }
+  catch (error) {
+    console.error('PDF作成に失敗しました:', error);
+    toast.add({
+      title: 'PDF作成に失敗しました',
+      description: error instanceof Error ? error.message : 'PDFの生成中にエラーが発生しました。ページを再読み込みして、もう一度お試しください。',
+      icon: 'i-mdi-alert',
+      color: 'error',
+    });
+  }
 };
 
 const { isCompactMode } = useScreenSize();

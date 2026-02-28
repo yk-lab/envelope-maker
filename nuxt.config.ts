@@ -1,5 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
 const TITLE = '封筒ツクール';
 const COMMON_DESCRIPTION
   = 'どなたでも無料でお使いいただけるオープンソースの宛名・差出人入り封筒のA4サイズ印刷用PDFの作成ツールです。PDFはブラウザ上で作成するため、住所・名前などの情報はインターネット上に送信されないので安心してお使いいただけます。出来上がりはA4用紙を三つ折りで入れることができるサイズです。';
@@ -24,16 +22,9 @@ export default defineNuxtConfig({
           property: 'og:description',
           content: COMMON_DESCRIPTION,
         },
-        // {
-        //   hid: "og:image",
-        //   property: "og:image",
-        //   content: "/logo.png",
-        // },
         { name: 'twitter:card', content: 'summary' },
       ],
-      link: [
-        // { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-      ],
+      link: [],
     },
   },
   'compatibilityDate': '2025-03-09',

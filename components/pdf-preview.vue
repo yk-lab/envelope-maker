@@ -18,12 +18,12 @@ const fontData = await getFontsData();
 
 const previewContainer = useTemplateRef('previewContainer');
 
-// 共通のPDFビューアコンポジタブルを使用
 const {
   initializeViewer,
   updateInputs,
   recreateViewer,
   destroyViewer,
+  error,
 } = usePdfViewer({
   basePdf: basePdf as string | ArrayBuffer,
   fontData,
@@ -56,7 +56,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <div
+    v-if="error"
+    class="flex items-center justify-center p-8 text-gray-500"
+  >
+    <p>{{ error }}</p>
+  </div>
   <aside
+    v-else
     ref="previewContainer"
   />
 </template>

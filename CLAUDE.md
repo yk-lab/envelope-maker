@@ -26,8 +26,7 @@ pnpm dev
 # Type checking
 pnpm typecheck
 
-# Linting (ESLint only - no Prettier installed)
-pnpm lint
+# Linting (ESLint only)
 pnpm lint:js
 
 # Fix linting issues
@@ -43,6 +42,8 @@ pnpm generate
 pnpm preview
 ```
 
+**Note:** `pnpm lint` は内部で `prettier --check .` を呼ぶが Prettier は未インストールのため失敗する。lintは `pnpm lint:js` を使うこと。
+
 ## Architecture
 
 ### Core Functionality Flow
@@ -57,19 +58,32 @@ pnpm preview
 ### Key Components
 
 - **Form System**: Uses Nuxt UI Pro form components with v-model bindings, no external state management
-- **PDF Generation**: Dynamic imports of @pdfme/generator for code splitting
-- **Font Loading**: Custom composable (`composables/font.ts`) loads local Noto Sans JP fonts with Google Fonts fallback
+- **PDF Generation**: Composable (`composables/pdf-generator.ts`) with dynamic imports of @pdfme/generator for code splitting
+- **PDF Preview**: Composable (`composables/pdf-viewer.ts`) manages @pdfme/ui Viewer lifecycle
+- **Font Loading**: Composable (`composables/font.ts`) loads local Noto Sans JP fonts with Google Fonts fallback
 - **PDF Template**: Pre-made base PDF (`/public/template_pdf/envelope-v.pdf`) with text overlay positions
-- **Responsive Breakpoint**: 640px for compact mode detection
+- **Address Book**: LocalStorage-backed address book (`composables/address-book.ts`) with registration/selection modals
+- **Share URL Feature**: Generates URLs with form data as query parameters (`components/share-url.vue`, `composables/query-params.ts`)
+- **Responsive Breakpoint**: 640px for compact mode detection (`composables/screen-size.ts`)
+
+### Directory Structure
+
+- `composables/` — Auto-imported Vue composables (kebab-case naming)
+- `utils/` — Auto-imported pure utility functions
+- `scripts/forms/` — Form type definitions (`schema.ts`)
+- `scripts/pdf_schemas/` — PDF layout schema definitions
 
 ### Important Implementation Details
 
 - **Browser-only**: SSR is disabled (`ssr: false` in nuxt.config.ts)
-- **Font Strategy**: Prioritizes local font files to reduce network requests
-- **PDF Schema**: Array-based schema format (pdfme v5 structure)
-- **Form Types**: TypeScript interfaces in `scripts/forms/schema.ts`
-- **Responsive**: Desktop shows side-by-side preview, mobile stacks vertically
+- **Privacy**: ユーザーの住所データをサーバーに送信しない。フォント読み込みのみGoogle Fonts CDNへのフォールバックを許容
+- **Font Strategy**: ローカルフォント (`/public/fonts/NotoSansJP-Regular.otf`) を優先し、取得失敗時のみGoogle Fontsにフォールバック
+- **PDF Schema**: Array-based schema format (pdfme v5 structure) with dynamic positioning
+- **Form Types**: `DestForm`, `SenderForm`, `Honorific` types in `scripts/forms/schema.ts`
+- **Address Entry Accessors**: Shared in `utils/address-entry.ts` to abstract dest/sender field prefix differences
+- **Address Book Storage**: バージョン管理付き `{ version: number, entries: AddressEntry[] }` 形式でlocalStorageに保存。スキーマ変更時は `composables/address-book.ts` の `migrations` マップに変換関数を追加し `CURRENT_VERSION` をインクリメントする。未登録バージョンのマイグレーションはエラーになる
 - **Lazy Loading**: Components use `lazy` prefix for performance optimization
+- **URL State**: Form values can be shared via query parameters, loaded on page mount
 
 ## Code Style Guidelines
 
@@ -81,8 +95,8 @@ pnpm preview
 
 ## Composables Naming Convention
 
-- Use kebab-case for composable file names (e.g., `person-search.ts`, not `usePersonSearch.ts`)
-- Composables are auto-imported globally
+- Use kebab-case for composable file names (e.g., `address-book.ts`, not `useAddressBook.ts`)
+- Composables and utils are auto-imported globally
 
 ## Known Issues
 
@@ -90,9 +104,17 @@ pnpm preview
 
 The console shows "CMap baseUrl parameter must be specified" warnings. These are from PDF.js (used internally by pdfme) when rendering the preview and don't affect PDF generation functionality. The warnings occur because the base PDF template contains embedded Japanese fonts that PDF.js cannot fully parse without CMap files.
 
+### TypeScript Errors in PDF Schema
+
+`scripts/pdf_schemas/envelope-v.ts` has 2 pre-existing TS2353 errors (`destZipcode1` and `senderZipcode` properties). These are type-level issues with @pdfme's Zod schema and do not affect runtime behavior. They exist on main branch.
+
 ### Printer Compatibility
 
 Some convenience store printers may have issues (documented in `components/print-disclaimer.vue`)
+
+### No CI Pipeline
+
+This project does not have GitHub Actions or other CI configured. Lint and typecheck must be run manually before pushing.
 
 ## pdfme Package Management
 
@@ -108,8 +130,10 @@ All @pdfme packages must be kept at the same version. The project uses pnpm over
 ## Before Making Changes
 
 1. Run `pnpm lint:js` to check for linting errors
-2. Test PDF generation with various Japanese address formats
-3. Verify the app works without network requests (privacy requirement)
-4. Ensure changes maintain responsive design for both desktop and mobile
-5. Check browser console for any new errors beyond the known CMap warnings
-6. Follow the code style guidelines (English variables, Japanese comments)
+2. Run `pnpm typecheck` to ensure type safety (2 pre-existing errors in `envelope-v.ts` are expected)
+3. Test PDF generation with various Japanese address formats
+4. Verify the app works without network requests (privacy requirement)
+5. Ensure changes maintain responsive design for both desktop and mobile
+6. Check browser console for any new errors beyond the known CMap warnings
+7. Follow the code style guidelines (English variables, Japanese comments)
+8. Test share URL functionality with different form field combinations

@@ -1,12 +1,6 @@
 <script lang="ts" setup>
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
-interface Emits {
-  (event: 'update:form', form: DestForm & SenderForm): void;
-}
-
-defineEmits<Emits>();
-
 interface Props {
   createPdf: () => void;
   resetDest: () => void;

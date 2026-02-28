@@ -1,10 +1,71 @@
 <script lang="ts" setup>
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
+const ADDRESS_BOOK_TYPE = 'sender';
+
 const model = defineModel<DestForm & SenderForm>({ required: true });
+
+const showAddressBookSelector = ref(false);
+const showAddressBookRegister = ref(false);
+
+// 差出人フォームデータかどうかを検証する型ガード
+const isSenderFormData = (data: Partial<DestForm> | Partial<SenderForm>): data is Partial<SenderForm> => {
+  return 'senderZipcode' in data
+    && typeof data.senderZipcode === 'string'
+    && (!('senderAddress1' in data) || typeof data.senderAddress1 === 'string')
+    && (!('senderAddress2' in data) || typeof data.senderAddress2 === 'string')
+    && (!('senderAffiliation1' in data) || typeof data.senderAffiliation1 === 'string')
+    && (!('senderAffiliation2' in data) || typeof data.senderAffiliation2 === 'string')
+    && (!('senderName' in data) || typeof data.senderName === 'string');
+};
+
+// 住所録から選択された時の処理
+const onAddressSelect = (entry: AddressEntry) => {
+  const data = entry.data;
+  if (!isSenderFormData(data)) {
+    console.warn('差出人フォームに適用できないデータ形式です:', entry.id);
+    return;
+  }
+  Object.assign(model.value, data);
+};
+
+// 現在の入力内容を取得
+const getCurrentSenderData = () => {
+  return {
+    senderZipcode: model.value.senderZipcode,
+    senderAddress1: model.value.senderAddress1,
+    senderAddress2: model.value.senderAddress2,
+    senderAffiliation1: model.value.senderAffiliation1,
+    senderAffiliation2: model.value.senderAffiliation2,
+    senderName: model.value.senderName,
+  };
+};
 </script>
 
 <template>
+  <!-- 住所録ボタン -->
+  <div class="flex flex-wrap justify-end gap-2 mb-4">
+    <UButton
+      icon="i-mdi-book-open-page-variant"
+      size="sm"
+      color="primary"
+      variant="outline"
+      @click="showAddressBookSelector = true"
+    >
+      住所録から選択
+    </UButton>
+    <UButton
+      icon="i-mdi-bookmark-plus"
+      size="sm"
+      color="warning"
+      variant="outline"
+      @click="showAddressBookRegister = true"
+    >
+      現在の内容を住所録に登録
+    </UButton>
+  </div>
+
+  <!-- 差出人情報入力フィールド -->
   <AddressFormField
     v-model="model.senderZipcode"
     label="郵便番号"
@@ -39,5 +100,19 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
     v-model="model.senderName"
     label="お名前"
     placeholder="差出人のお名前を入力してください"
+  />
+
+  <!-- 住所録選択モーダル -->
+  <LazyAddressBookSelector
+    v-model="showAddressBookSelector"
+    :type="ADDRESS_BOOK_TYPE"
+    @select="onAddressSelect"
+  />
+
+  <!-- 住所録登録モーダル -->
+  <LazyAddressBookRegister
+    v-model="showAddressBookRegister"
+    :type="ADDRESS_BOOK_TYPE"
+    :data="getCurrentSenderData()"
   />
 </template>

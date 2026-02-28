@@ -9,10 +9,71 @@ const HONORIFIC_OPTIONS = [
   { name: '行', value: '行' },
 ] as const;
 
+const ADDRESS_BOOK_TYPE = 'destination';
+
 const model = defineModel<DestForm & SenderForm>({ required: true });
+
+const showAddressBookSelector = ref(false);
+const showAddressBookRegister = ref(false);
+
+// 宛先フォームデータかどうかを検証する型ガード
+const isDestFormData = (data: Partial<DestForm> | Partial<SenderForm>): data is Partial<DestForm> => {
+  return 'destZipcode' in data
+    && typeof data.destZipcode === 'string'
+    && (!('destAddress1' in data) || typeof data.destAddress1 === 'string')
+    && (!('destAddress2' in data) || typeof data.destAddress2 === 'string')
+    && (!('destName' in data) || typeof data.destName === 'string');
+};
+
+// 住所録から選択された時の処理
+const onAddressSelect = (entry: AddressEntry) => {
+  const data = entry.data;
+  if (!isDestFormData(data)) {
+    console.warn('宛先フォームに適用できないデータ形式です:', entry.id);
+    return;
+  }
+  Object.assign(model.value, data);
+};
+
+// 現在の入力内容を取得
+const getCurrentDestData = () => {
+  return {
+    destZipcode: model.value.destZipcode,
+    destAddress1: model.value.destAddress1,
+    destAddress2: model.value.destAddress2,
+    destAffiliation1: model.value.destAffiliation1,
+    destAffiliation2: model.value.destAffiliation2,
+    destPosition: model.value.destPosition,
+    destName: model.value.destName,
+    destHonorific: model.value.destHonorific,
+  };
+};
 </script>
 
 <template>
+  <!-- 住所録ボタン -->
+  <div class="flex flex-wrap gap-2 justify-end mb-4">
+    <UButton
+      icon="i-mdi-book-open-page-variant"
+      size="sm"
+      color="primary"
+      variant="outline"
+      @click="showAddressBookSelector = true"
+    >
+      住所録から選択
+    </UButton>
+    <UButton
+      icon="i-mdi-bookmark-plus"
+      size="sm"
+      color="warning"
+      variant="outline"
+      @click="showAddressBookRegister = true"
+    >
+      現在の内容を住所録に登録
+    </UButton>
+  </div>
+
+  <!-- 宛先情報入力フィールド -->
   <AddressFormField
     v-model="model.destZipcode"
     label="郵便番号"
@@ -77,4 +138,18 @@ const model = defineModel<DestForm & SenderForm>({ required: true });
       </RadioGroupOption>
     </RadioGroup>
   </fieldset>
+
+  <!-- 住所録選択モーダル -->
+  <LazyAddressBookSelector
+    v-model="showAddressBookSelector"
+    :type="ADDRESS_BOOK_TYPE"
+    @select="onAddressSelect"
+  />
+
+  <!-- 住所録登録モーダル -->
+  <LazyAddressBookRegister
+    v-model="showAddressBookRegister"
+    :type="ADDRESS_BOOK_TYPE"
+    :data="getCurrentDestData()"
+  />
 </template>

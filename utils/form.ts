@@ -1,23 +1,19 @@
 import type { DestForm, SenderForm } from '~/scripts/forms/schema';
 
 export const convertFormToTemplateInput = (form: DestForm & SenderForm) => {
-  const data: Omit<DestForm & SenderForm, 'destZipcode' | 'destHonorific'> & {
-    destZipcode?: string;
-    destHonorific?: string;
-  } = { ...form };
+  // destZipcodeとdestHonorificはPDFテンプレートに直接渡さない（加工後の値を使う）
+  const { destZipcode, destHonorific, ...rest } = { ...form };
 
-  const destZipcode = data.destZipcode?.replaceAll('-', '') ?? '';
-  const honorific = data.destHonorific?.trim();
-  data.destName = (data.destName || '') + (honorific ? ` ${honorific}` : '');
-  data.destZipcode = undefined;
-  data.destHonorific = undefined;
+  const cleanZipcode = destZipcode?.replaceAll('-', '') ?? '';
+  const honorific = destHonorific?.trim();
+  rest.destName = (rest.destName || '') + (honorific ? ` ${honorific}` : '');
 
-  const destZipcode1 = (destZipcode.length > 0) ? destZipcode.substring(0, Math.min(3, destZipcode.length)) : '';
-  const destZipcode2 = (destZipcode.length > 3) ? destZipcode.substring(3, Math.min(7, destZipcode.length)) : '';
-  data.senderZipcode
-    = data.senderZipcode.length > 0
-      ? `〒${data.senderZipcode}`
-      : data.senderZipcode;
+  const destZipcode1 = (cleanZipcode.length > 0) ? cleanZipcode.substring(0, Math.min(3, cleanZipcode.length)) : '';
+  const destZipcode2 = (cleanZipcode.length > 3) ? cleanZipcode.substring(3, Math.min(7, cleanZipcode.length)) : '';
+  rest.senderZipcode
+    = rest.senderZipcode.length > 0
+      ? `〒${rest.senderZipcode}`
+      : rest.senderZipcode;
 
-  return { ...data, destZipcode1, destZipcode2 };
+  return { ...rest, destZipcode1, destZipcode2 };
 };

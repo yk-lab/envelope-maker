@@ -1,3 +1,6 @@
+export const HONORIFICS = ['', '様', '御中', '行'] as const;
+export type Honorific = (typeof HONORIFICS)[number];
+
 export type DestForm = {
   destZipcode: string;
   destAddress1: string;
@@ -6,7 +9,7 @@ export type DestForm = {
   destAffiliation2: string;
   destPosition: string;
   destName: string;
-  destHonorific: string;
+  destHonorific: Honorific;
 };
 
 export type SenderForm = {
